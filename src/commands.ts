@@ -107,12 +107,34 @@ const TRAIN = [
   "  ___oo____oo____oo____oo__",
 ];
 
-function trainFrame(offset: number): string {
-  return TRAIN.map((line) => {
-    if (offset >= 0) return " ".repeat(offset) + line;
-    const cut = -offset;
-    return cut >= line.length ? "" : line.slice(cut);
-  }).join("\n");
+const OTTER = [
+  "    ___",
+  " __/o o\\_____",
+  "(  =(_)=  )   )",
+  " \\____|____)_/",
+  "    ~   ~   ~",
+];
+
+function scrollFrame(art: string[], offset: number): string {
+  return art
+    .map((line) => {
+      if (offset >= 0) return " ".repeat(offset) + line;
+      const cut = -offset;
+      return cut >= line.length ? "" : line.slice(cut);
+    })
+    .join("\n");
+}
+
+async function runScroller(api: EffectAPI, art: string[]): Promise<void> {
+  const width = Math.max(...art.map((l) => l.length));
+  const start = 80;
+  const end = -width;
+  const el = api.printArt(scrollFrame(art, start));
+  for (let offset = start; offset > end; offset -= 3) {
+    el.textContent = scrollFrame(art, offset);
+    await api.sleep(45);
+  }
+  el.remove();
 }
 
 let coffeeCount = 0;
@@ -308,17 +330,14 @@ export const COMMANDS: Record<string, CommandSpec> = {
     summary: "you meant 'ls', right?",
     hidden: true,
     run: () => ({
-      effect: async (api) => {
-        const width = Math.max(...TRAIN.map((l) => l.length));
-        const start = 80;
-        const end = -width;
-        const art = api.printArt(trainFrame(start));
-        for (let offset = start; offset > end; offset -= 3) {
-          art.textContent = trainFrame(offset);
-          await api.sleep(45);
-        }
-        art.remove();
-      },
+      effect: (api) => runScroller(api, TRAIN),
+    }),
+  },
+  otter: {
+    summary: "an otter runs by",
+    hidden: true,
+    run: () => ({
+      effect: (api) => runScroller(api, OTTER),
     }),
   },
   decaf: {
