@@ -30,7 +30,7 @@ All editable content (name, about text, projects, contact links) lives in
 couple of hidden easter eggs (try `sudo`, `decaf` — run it again at normal
 speed and it slows everything down instead — `resetvisitors`,
 `slowcomputer` (plays a boot sound and swaps in the classic wallpaper),
-`otter`, or typo `ls` as `sl`).
+`otter`, `beaver`, or typo `ls` as `sl`).
 
 `visitors` and the automatic visit count on page load use the free,
 anonymous [abacus](https://github.com/JasonCameron/abacus) hit-counter API

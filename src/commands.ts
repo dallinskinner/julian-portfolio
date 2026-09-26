@@ -115,6 +115,14 @@ const OTTER = [
   "    ~   ~   ~",
 ];
 
+const BEAVER = [
+  "    ___",
+  " __/o o\\_____",
+  "(  =(_)=  ) )",
+  " \\__ || __)_[=======]",
+  "    ~    ~    ~~~~~~~",
+];
+
 function scrollFrame(art: string[], offset: number): string {
   return art
     .map((line) => {
@@ -338,6 +346,13 @@ export const COMMANDS: Record<string, CommandSpec> = {
     hidden: true,
     run: () => ({
       effect: (api) => runScroller(api, OTTER),
+    }),
+  },
+  beaver: {
+    summary: "a beaver runs by",
+    hidden: true,
+    run: () => ({
+      effect: (api) => runScroller(api, BEAVER),
     }),
   },
   decaf: {
