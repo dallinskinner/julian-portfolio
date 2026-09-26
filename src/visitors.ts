@@ -25,6 +25,21 @@ export async function recordVisit(): Promise<void> {
   }
 }
 
+/**
+ * Clears this browser's "already counted" flag so the next page load counts
+ * as a visit again. This only affects the current browser — there's no way
+ * to reset the shared global count from a static site without embedding a
+ * secret admin key in the public JS bundle, which would let any visitor
+ * reset (or overwrite) it too.
+ */
+export function resetLocalVisitFlag(): void {
+  try {
+    sessionStorage.removeItem(SESSION_FLAG);
+  } catch {
+    // sessionStorage unavailable; nothing to clear.
+  }
+}
+
 export async function getVisitCount(): Promise<number | null> {
   try {
     const res = await fetch(`${BASE}/get/${NAMESPACE}/${KEY}`);

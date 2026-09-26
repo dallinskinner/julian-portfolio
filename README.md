@@ -27,7 +27,9 @@ All editable content (name, about text, projects, contact links) lives in
 `help`, `about` (`whoami`), `projects`, `contact`, `visitors`, `ls`,
 `cat <file>`, `clear`, `history`, `date`, `echo <text>`, `neofetch`, `coffee`,
 `matrix` (try `matrix <text>` to rain your own text), `meow`, `hack`, plus a
-couple of hidden easter eggs (try `sudo`, `decaf`, or typo `ls` as `sl`).
+couple of hidden easter eggs (try `sudo`, `decaf` — run it again at normal
+speed and it slows everything down instead — `resetvisitors`, or typo `ls`
+as `sl`).
 
 `visitors` and the automatic visit count on page load use the free,
 anonymous [abacus](https://github.com/JasonCameron/abacus) hit-counter API

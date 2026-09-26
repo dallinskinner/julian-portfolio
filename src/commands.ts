@@ -3,7 +3,7 @@ import { escapeHtml } from "./utils";
 import { toggleMatrix } from "./matrix";
 import { runExplosion } from "./explosion";
 import { getSpeedMultiplier, setSpeedMultiplier } from "./speed";
-import { getVisitCount } from "./visitors";
+import { getVisitCount, resetLocalVisitFlag } from "./visitors";
 
 export type CommandOutput = string[];
 
@@ -163,6 +163,21 @@ export const COMMANDS: Record<string, CommandSpec> = {
       },
     }),
   },
+  resetvisitors: {
+    summary: "reset the visitor counter",
+    hidden: true,
+    run: () => {
+      resetLocalVisitFlag();
+      return {
+        lines: [
+          "cleared your local visit flag — your next reload will count as a new visit.",
+          "&nbsp;",
+          "(this can't reset the global count everyone else sees: a static site with",
+          "no backend has nowhere safe to keep the secret key that would allow that.)",
+        ],
+      };
+    },
+  },
   ls: {
     summary: "list files",
     run: (args) => {
@@ -218,7 +233,9 @@ export const COMMANDS: Record<string, CommandSpec> = {
         `<span class="dim">Shell:</span> hackfolio-sh`,
         `<span class="dim">Terminal:</span> julian-term`,
         `<span class="dim">Uptime:</span> ${Math.max(1, Math.round(performance.now() / 1000))}s`,
-        `<span class="dim">Speed:</span> ${getSpeedMultiplier()}x${getSpeedMultiplier() > 1 ? " (ULTRA FAST MODE)" : ""}`,
+        `<span class="dim">Speed:</span> ${getSpeedMultiplier()}x${
+          getSpeedMultiplier() > 1 ? " (ULTRA FAST MODE)" : getSpeedMultiplier() < 1 ? " (SLUGGISH)" : ""
+        }`,
       ],
     }),
   },
@@ -308,17 +325,19 @@ export const COMMANDS: Record<string, CommandSpec> = {
     summary: "switch to decaf",
     hidden: true,
     run: () => {
-      const wasUltra = getSpeedMultiplier() > 1;
-      setSpeedMultiplier(1);
-      return {
-        lines: [
-          "brewing a cup of decaf...",
-          "&nbsp;",
-          wasUltra
-            ? "ahh, much better. back to normal speed."
-            : "already decaf. speed is normal.",
-        ],
-      };
+      const current = getSpeedMultiplier();
+      let message: string;
+      if (current > 1) {
+        setSpeedMultiplier(1);
+        message = "ahh, much better. back to normal speed.";
+      } else if (current < 1) {
+        setSpeedMultiplier(1);
+        message = "ok, that's enough decaf. back to normal speed.";
+      } else {
+        setSpeedMultiplier(0.3);
+        message = "that's a lot of decaf... everything feels sluggish now.";
+      }
+      return { lines: ["brewing a cup of decaf...", "&nbsp;", message] };
     },
   },
   sudo: {
