@@ -6,9 +6,11 @@ let columns: number[] = [];
 let rafId = 0;
 let resizeHandler: (() => void) | null = null;
 
-const GLYPHS =
+const DEFAULT_GLYPHS =
   "アイウエオカキクケコサシスセソタチツテトナニヌネノ0123456789";
 const FONT_SIZE = 16;
+
+let glyphs = DEFAULT_GLYPHS;
 
 function resize() {
   if (!canvas) return;
@@ -26,7 +28,7 @@ function draw() {
   ctx.font = `${FONT_SIZE}px monospace`;
 
   for (let i = 0; i < columns.length; i++) {
-    const glyph = GLYPHS[Math.floor(Math.random() * GLYPHS.length)];
+    const glyph = glyphs[Math.floor(Math.random() * glyphs.length)];
     const x = i * FONT_SIZE;
     const y = columns[i] * FONT_SIZE;
     ctx.fillText(glyph, x, y);
@@ -45,8 +47,10 @@ export function isMatrixRunning(): boolean {
   return canvas !== null;
 }
 
-export function startMatrix(): void {
+export function startMatrix(customText?: string): void {
   if (canvas) return;
+  const trimmed = customText?.replace(/\s+/g, "") ?? "";
+  glyphs = trimmed || DEFAULT_GLYPHS;
   const terminal = document.getElementById("terminal") ?? document.body;
   canvas = document.createElement("canvas");
   canvas.id = "matrix-canvas";
@@ -68,11 +72,11 @@ export function stopMatrix(): void {
   columns = [];
 }
 
-export function toggleMatrix(): boolean {
+export function toggleMatrix(customText?: string): boolean {
   if (isMatrixRunning()) {
     stopMatrix();
     return false;
   }
-  startMatrix();
+  startMatrix(customText);
   return true;
 }

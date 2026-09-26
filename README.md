@@ -25,8 +25,9 @@ All editable content (name, about text, projects, contact links) lives in
 ## Commands available in the terminal
 
 `help`, `about` (`whoami`), `projects`, `contact`, `ls`, `cat <file>`, `clear`,
-`history`, `date`, `echo <text>`, `neofetch`, `coffee`, `matrix`, `hack`, plus
-a couple of hidden easter eggs (try `sudo`, or typo `ls` as `sl`).
+`history`, `date`, `echo <text>`, `neofetch`, `coffee`, `matrix` (try
+`matrix <text>` to rain your own text), `meow`, `hack`, plus a couple of
+hidden easter eggs (try `sudo`, `decaf`, or typo `ls` as `sl`).
 
 To add a new command, add an entry to the `COMMANDS` map in `src/commands.ts`.
 

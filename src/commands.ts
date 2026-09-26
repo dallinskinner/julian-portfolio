@@ -245,10 +245,12 @@ export const COMMANDS: Record<string, CommandSpec> = {
     }),
   },
   matrix: {
-    summary: "toggle the matrix",
-    run: () => {
-      const running = toggleMatrix();
-      return { lines: [running ? "wake up, neo..." : "back to reality."] };
+    summary: "toggle the matrix (try 'matrix <text>')",
+    run: (args) => {
+      const text = args.join(" ");
+      const running = toggleMatrix(text);
+      if (!running) return { lines: ["back to reality."] };
+      return { lines: [text ? `entering the ${escapeHtml(text)} matrix...` : "wake up, neo..."] };
     },
   },
   hack: {
