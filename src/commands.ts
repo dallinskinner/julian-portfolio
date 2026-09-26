@@ -344,16 +344,24 @@ export const COMMANDS: Record<string, CommandSpec> = {
   otter: {
     summary: "an otter runs by",
     hidden: true,
-    run: () => ({
-      effect: (api) => runScroller(api, OTTER),
-    }),
+    run: (args) => {
+      if (args[0]?.toLowerCase() === "matrix") {
+        const running = toggleMatrix("🦦");
+        return { lines: [running ? "otters in the matrix..." : "back to reality."] };
+      }
+      return { effect: (api) => runScroller(api, OTTER) };
+    },
   },
   beaver: {
     summary: "a beaver runs by",
     hidden: true,
-    run: () => ({
-      effect: (api) => runScroller(api, BEAVER),
-    }),
+    run: (args) => {
+      if (args[0]?.toLowerCase() === "matrix") {
+        const running = toggleMatrix("🦫");
+        return { lines: [running ? "beavers in the matrix..." : "back to reality."] };
+      }
+      return { effect: (api) => runScroller(api, BEAVER) };
+    },
   },
   decaf: {
     summary: "switch to decaf",

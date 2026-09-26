@@ -10,7 +10,9 @@ const DEFAULT_GLYPHS =
   "アイウエオカキクケコサシスセソタチツテトナニヌネノ0123456789";
 const FONT_SIZE = 16;
 
-let glyphs = DEFAULT_GLYPHS;
+// Array.from splits by Unicode code point, not UTF-16 code unit — required
+// for glyph sets that include emoji (which are surrogate pairs).
+let glyphChars = Array.from(DEFAULT_GLYPHS);
 
 function resize() {
   if (!canvas) return;
@@ -28,7 +30,7 @@ function draw() {
   ctx.font = `${FONT_SIZE}px monospace`;
 
   for (let i = 0; i < columns.length; i++) {
-    const glyph = glyphs[Math.floor(Math.random() * glyphs.length)];
+    const glyph = glyphChars[Math.floor(Math.random() * glyphChars.length)];
     const x = i * FONT_SIZE;
     const y = columns[i] * FONT_SIZE;
     ctx.fillText(glyph, x, y);
@@ -50,7 +52,7 @@ export function isMatrixRunning(): boolean {
 export function startMatrix(customText?: string): void {
   if (canvas) return;
   const trimmed = customText?.replace(/\s+/g, "") ?? "";
-  glyphs = trimmed || DEFAULT_GLYPHS;
+  glyphChars = Array.from(trimmed || DEFAULT_GLYPHS);
   const terminal = document.getElementById("terminal") ?? document.body;
   canvas = document.createElement("canvas");
   canvas.id = "matrix-canvas";
