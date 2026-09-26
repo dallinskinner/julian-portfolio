@@ -39,7 +39,9 @@ function renderProjects(): CommandOutput {
   PROJECTS.forEach((p, i) => {
     out.push(`<span class="accent">[${i + 1}]</span> <span class="highlight">${escapeHtml(p.name)}</span>`);
     out.push(`    ${escapeHtml(p.description)}`);
-    out.push(`    <span class="dim">tech:</span> ${escapeHtml(p.tech.join(", "))}`);
+    if (p.tech.length) {
+      out.push(`    <span class="dim">tech:</span> ${escapeHtml(p.tech.join(", "))}`);
+    }
     if (p.link) {
       out.push(
         `    <span class="dim">link:</span> <a href="${escapeHtml(p.link)}" target="_blank" rel="noopener noreferrer">${escapeHtml(p.link)}</a>`
@@ -56,7 +58,7 @@ function renderProjectDetail(slug: string): CommandOutput | null {
   return [
     `<span class="highlight">${escapeHtml(p.name)}</span>`,
     escapeHtml(p.description),
-    `<span class="dim">tech:</span> ${escapeHtml(p.tech.join(", "))}`,
+    ...(p.tech.length ? [`<span class="dim">tech:</span> ${escapeHtml(p.tech.join(", "))}`] : []),
     ...(p.link
       ? [`<span class="dim">link:</span> <a href="${escapeHtml(p.link)}" target="_blank" rel="noopener noreferrer">${escapeHtml(p.link)}</a>`]
       : []),

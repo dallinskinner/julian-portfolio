@@ -18,25 +18,20 @@ export interface Project {
   link?: string;
 }
 
-// TODO: replace these with your real projects.
 export const PROJECTS: Project[] = [
   {
-    name: "project-one",
-    description: "A short description of a project you're proud of.",
-    tech: ["TypeScript", "Node.js"],
-    link: "https://github.com/",
+    name: "Music",
+    // TODO: tweak this description if you want.
+    description: "Original music, on BandLab.",
+    tech: [],
+    link: "https://www.bandlab.com/partymakesmusic",
   },
   {
-    name: "project-two",
-    description: "Another project — what problem did it solve?",
-    tech: ["Python"],
-    link: "https://github.com/",
-  },
-  {
-    name: "project-three",
-    description: "A third project, or delete this one.",
-    tech: ["Rust"],
-    link: "https://github.com/",
+    name: "Make Anything",
+    // TODO: tweak this description if you want.
+    description: "A web app for making anything.",
+    tech: [],
+    link: "https://make-anything.dallinskinner.com/",
   },
 ];
 
