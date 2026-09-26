@@ -340,6 +340,26 @@ export const COMMANDS: Record<string, CommandSpec> = {
       return { lines: ["brewing a cup of decaf...", "&nbsp;", message] };
     },
   },
+  slowcomputer: {
+    summary: "everything is slow",
+    hidden: true,
+    run: () => {
+      const activating = !document.body.classList.contains("win98");
+      document.body.classList.toggle("win98", activating);
+      if (activating) {
+        setSpeedMultiplier(0.15);
+        return {
+          lines: [
+            "initializing legacy hardware emulation...",
+            "&nbsp;",
+            "Welcome to Windows 98.",
+          ],
+        };
+      }
+      setSpeedMultiplier(1);
+      return { lines: ["exiting legacy mode. back to normal."] };
+    },
+  },
   sudo: {
     summary: "try it and see",
     hidden: true,

@@ -39,6 +39,10 @@ export class Terminal {
   constructor(mount: HTMLElement) {
     mount.innerHTML = `
       <div id="terminal" role="group" aria-label="interactive terminal">
+        <div id="win98-bar" aria-hidden="true">
+          <span class="win98-bar-title">C:\\WINDOWS\\SYSTEM32\\JULIAN.EXE</span>
+          <span class="win98-bar-buttons"><span>_</span><span>&#9633;</span><span>X</span></span>
+        </div>
         <div id="output" role="log" aria-live="polite"></div>
         <div id="input-line" class="line" hidden>
           <span class="prompt">${escapeHtml(PROMPT)}</span>

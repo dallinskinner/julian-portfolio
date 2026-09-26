@@ -5,6 +5,7 @@
   --fg-bright: #a6ffa6;
   --accent: #33ff33;
   --mono: "SFMono-Regular", ui-monospace, Menlo, Consolas, "Liberation Mono", monospace;
+  --glow: 0 0 2px rgba(51, 255, 51, 0.6);
 
   color-scheme: dark;
   color: var(--fg);
@@ -56,7 +57,7 @@ body {
 .line {
   white-space: pre-wrap;
   word-break: break-word;
-  text-shadow: 0 0 2px rgba(51, 255, 51, 0.6);
+  text-shadow: var(--glow);
   min-height: 1.5em;
 }
 
@@ -118,9 +119,99 @@ a:focus-visible {
   outline: none;
   color: var(--fg);
   font: inherit;
-  text-shadow: 0 0 2px rgba(51, 255, 51, 0.6);
+  text-shadow: var(--glow);
   caret-color: var(--fg);
   padding: 0;
+}
+
+#win98-bar {
+  display: none;
+}
+
+/* --- Windows 98 mode (triggered by the 'slowcomputer' command) --- */
+body.win98 {
+  background: #008080;
+}
+
+body.win98 #app {
+  height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+body.win98 #terminal {
+  --bg: #000000;
+  --fg: #c0c0c0;
+  --fg-dim: #808080;
+  --fg-bright: #ffffff;
+  --accent: #ffff00;
+  --mono: "Courier New", monospace;
+  --glow: none;
+  color: var(--fg);
+  background: var(--bg);
+  font-family: var(--mono);
+  height: auto;
+  max-height: 82vh;
+  width: min(820px, 100%);
+  border: 2px solid;
+  border-color: #dfdfdf #404040 #404040 #dfdfdf;
+  box-shadow: inset -1px -1px 0 #808080, inset 1px 1px 0 #fff;
+  isolation: isolate;
+}
+
+body.win98 #terminal::before {
+  display: none;
+}
+
+body.win98 #win98-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: -20px -20px 12px -20px;
+  padding: 4px 4px 4px 8px;
+  background: linear-gradient(90deg, #000080, #1084d0);
+  color: #fff;
+  font-family: "MS Sans Serif", Tahoma, Geneva, sans-serif;
+  font-size: 13px;
+  font-weight: bold;
+  text-shadow: none;
+  position: sticky;
+  top: -20px;
+}
+
+body.win98 .win98-bar-title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+body.win98 .win98-bar-buttons {
+  display: flex;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+body.win98 .win98-bar-buttons span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 16px;
+  background: #c0c0c0;
+  color: #000;
+  font-size: 11px;
+  line-height: 1;
+  border: 1px solid;
+  border-color: #fff #404040 #404040 #fff;
+}
+
+@media (max-width: 600px) {
+  body.win98 #app {
+    padding: 8px;
+  }
 }
 
 #matrix-canvas {
