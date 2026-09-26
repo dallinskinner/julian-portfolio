@@ -2,6 +2,7 @@ import { NAME } from "./content";
 import { commandNames, runCommand, type EffectAPI } from "./commands";
 import { escapeHtml } from "./utils";
 import { fastSleep } from "./speed";
+import { recordVisit } from "./visitors";
 
 const PROMPT = "visitor@julian-skinner:~$";
 const BOOT_LINES = [
@@ -61,6 +62,7 @@ export class Terminal {
 
     this.input.addEventListener("keydown", (e) => this.onKeyDown(e));
 
+    void recordVisit();
     void this.boot();
   }
 

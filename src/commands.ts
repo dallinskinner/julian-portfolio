@@ -3,6 +3,7 @@ import { escapeHtml } from "./utils";
 import { toggleMatrix } from "./matrix";
 import { runExplosion } from "./explosion";
 import { getSpeedMultiplier, setSpeedMultiplier } from "./speed";
+import { getVisitCount } from "./visitors";
 
 export type CommandOutput = string[];
 
@@ -147,6 +148,20 @@ export const COMMANDS: Record<string, CommandSpec> = {
   contact: {
     summary: "how to reach me",
     run: () => ({ lines: renderContact() }),
+  },
+  visitors: {
+    summary: "how many people have visited this site",
+    run: () => ({
+      effect: async (api) => {
+        api.print("checking the counter...");
+        const count = await getVisitCount();
+        if (count === null) {
+          api.print("couldn't reach the counter. try again later.");
+        } else {
+          api.print(`<span class="highlight">${count}</span> visit${count === 1 ? "" : "s"} so far.`);
+        }
+      },
+    }),
   },
   ls: {
     summary: "list files",
