@@ -238,6 +238,12 @@ export const COMMANDS: Record<string, CommandSpec> = {
       };
     },
   },
+  meow: {
+    summary: "where did my cat go?",
+    run: () => ({
+      lines: [" /\\_/\\", "( o.o )  meow", " > ^ <"],
+    }),
+  },
   matrix: {
     summary: "toggle the matrix",
     run: () => {
