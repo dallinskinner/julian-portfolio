@@ -281,19 +281,19 @@ export const COMMANDS: Record<string, CommandSpec> = {
       },
     }),
   },
-  water: {
-    summary: "drink some water",
+  decaf: {
+    summary: "switch to decaf",
     hidden: true,
     run: () => {
       const wasUltra = getSpeedMultiplier() > 1;
       setSpeedMultiplier(1);
       return {
         lines: [
-          "*glug glug glug*",
+          "brewing a cup of decaf...",
           "&nbsp;",
           wasUltra
             ? "ahh, much better. back to normal speed."
-            : "you were already sober. speed is normal.",
+            : "already decaf. speed is normal.",
         ],
       };
     },
