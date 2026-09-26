@@ -348,6 +348,9 @@ export const COMMANDS: Record<string, CommandSpec> = {
       document.body.classList.toggle("win98", activating);
       if (activating) {
         setSpeedMultiplier(0.15);
+        new Audio("/win98-boot.mp3").play().catch(() => {
+          // autoplay blocked; not worth surfacing to the visitor.
+        });
         return {
           lines: [
             "initializing legacy hardware emulation...",

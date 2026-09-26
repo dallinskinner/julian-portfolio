@@ -130,7 +130,7 @@ a:focus-visible {
 
 /* --- Windows 98 mode (triggered by the 'slowcomputer' command) --- */
 body.win98 {
-  background: #008080;
+  background: #008080 url("/win98-bliss.jpg") center center / cover no-repeat;
 }
 
 body.win98 #app {
