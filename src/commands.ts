@@ -109,6 +109,11 @@ const TRAIN = [
   "  ___oo____oo____oo____oo__",
 ];
 
+// sl -a: the classic "someone got dragged along" gag — two screaming
+// stick figures trailing behind the train.
+const TRAIN_ACCIDENT_TAIL = ["  \\o/ \\o/", "   |   |", "  / \\ / \\", "", "  ~   ~  "];
+const TRAIN_ACCIDENT = TRAIN.map((line, i) => line + TRAIN_ACCIDENT_TAIL[i]);
+
 const OTTER = [
   "    ___",
   " __/o o\\_____",
@@ -146,6 +151,10 @@ const SHARK_FIN = [
   " ____/      \\________",
   "~~~~~~~~~~~~~~~~~~~~~~",
 ];
+
+// shark -a: a swimmer fleeing just ahead of the fin.
+const SWIMMER_HEAD = ["  o", " /|\\", " / \\", "", ""];
+const SHARK_CHASE = SWIMMER_HEAD.map((line, i) => line.padEnd(10) + SHARK_FIN[i]);
 
 const OWL = [
   "   ,^..^,",
@@ -396,11 +405,20 @@ export const COMMANDS: Record<string, CommandSpec> = {
     }),
   },
   sl: {
-    summary: "you meant 'ls', right?",
+    summary: "you meant 'ls', right? (try 'sl -a')",
     hidden: true,
-    run: () => ({
-      effect: (api) => runScroller(api, TRAIN),
-    }),
+    run: (args) => {
+      if (args[0] === "-a") {
+        return {
+          effect: async (api) => {
+            api.print("uh oh, someone's holding on...");
+            await api.sleep(500);
+            await runScroller(api, TRAIN_ACCIDENT);
+          },
+        };
+      }
+      return { effect: (api) => runScroller(api, TRAIN) };
+    },
   },
   otter: {
     summary: "an otter runs by",
@@ -439,9 +457,9 @@ export const COMMANDS: Record<string, CommandSpec> = {
     }),
   },
   shark: {
-    summary: "dun dun...",
+    summary: "dun dun... (try 'shark -a')",
     hidden: true,
-    run: () => ({
+    run: (args) => ({
       effect: async (api) => {
         api.print("dun dun...");
         await api.sleep(700);
@@ -449,7 +467,12 @@ export const COMMANDS: Record<string, CommandSpec> = {
         await api.sleep(500);
         api.print("dun dun dun dun");
         await api.sleep(300);
-        await runScroller(api, SHARK_FIN);
+        if (args[0] === "-a") {
+          api.print('<span class="highlight">SWIM!</span>');
+          await runScroller(api, SHARK_CHASE);
+        } else {
+          await runScroller(api, SHARK_FIN);
+        }
       },
     }),
   },
