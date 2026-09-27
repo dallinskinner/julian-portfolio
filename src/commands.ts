@@ -5,6 +5,7 @@ import { runExplosion } from "./explosion";
 import { getSpeedMultiplier, setSpeedMultiplier } from "./speed";
 import { getVisitCount, resetLocalVisitFlag } from "./visitors";
 import { runBsod } from "./bsod";
+import { runOops } from "./oops";
 
 export type CommandOutput = string[];
 
@@ -464,13 +465,20 @@ export const COMMANDS: Record<string, CommandSpec> = {
     }),
   },
   bsod: {
-    summary: "oops",
+    summary: "everything crashes",
     hidden: true,
     run: () => ({
       effect: async (api) => {
         await runBsod();
         api.print("...aaand we're back. that was fun.");
       },
+    }),
+  },
+  oops: {
+    summary: "oops",
+    hidden: true,
+    run: () => ({
+      effect: () => runOops(),
     }),
   },
   dialup: {

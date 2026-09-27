@@ -228,6 +228,21 @@ body.win98 .win98-bar-buttons span {
   pointer-events: none;
 }
 
+#oops-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#oops-overlay video {
+  max-width: 100%;
+  max-height: 100%;
+}
+
 #bsod-overlay {
   position: fixed;
   inset: 0;

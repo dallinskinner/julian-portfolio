@@ -31,9 +31,10 @@ All editable content (name, about text, projects, contact links) lives in
 There are also ~20 hidden easter-egg commands not listed in `help` — try
 `help-hidden` in the terminal to see them all, or `achievements` to track
 how many you've found. A few highlights: `slowcomputer` (full Windows 98
-theme + boot sound), `bsod`, `dialup`, `sl`/`otter`/`beaver`/`capybara`/
-`snake`/`shark`/`owl` (ASCII animals scroll by — try `otter matrix` too),
-and `decaf` (run it again at normal speed to slow everything down instead).
+theme + boot sound), `bsod`, `oops` (plays a short video clip), `dialup`,
+`sl`/`otter`/`beaver`/`capybara`/`snake`/`shark`/`owl` (ASCII animals scroll
+by — try `otter matrix` too), and `decaf` (run it again at normal speed to
+slow everything down instead).
 
 `visitors` and the automatic visit count on page load use the free,
 anonymous [abacus](https://github.com/JasonCameron/abacus) hit-counter API
