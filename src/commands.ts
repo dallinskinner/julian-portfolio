@@ -162,6 +162,19 @@ export const COMMANDS: Record<string, CommandSpec> = {
       ],
     }),
   },
+  "help-hidden": {
+    summary: "list the hidden commands",
+    hidden: true,
+    run: () => ({
+      lines: [
+        "Hidden commands:",
+        "&nbsp;",
+        ...Object.entries(COMMANDS)
+          .filter(([name, spec]) => spec.hidden && name !== "help-hidden")
+          .map(([name, spec]) => `  <span class="highlight">${name.padEnd(14)}</span> ${escapeHtml(spec.summary)}`),
+      ],
+    }),
+  },
   about: {
     summary: "about me",
     run: () => ({ lines: renderAbout() }),
