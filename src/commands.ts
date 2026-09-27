@@ -4,6 +4,7 @@ import { toggleMatrix } from "./matrix";
 import { runExplosion } from "./explosion";
 import { getSpeedMultiplier, setSpeedMultiplier } from "./speed";
 import { getVisitCount, resetLocalVisitFlag } from "./visitors";
+import { runBsod } from "./bsod";
 
 export type CommandOutput = string[];
 
@@ -123,6 +124,36 @@ const BEAVER = [
   "    ~    ~    ~~~~~~~",
 ];
 
+const CAPYBARA = [
+  "    ___",
+  " __/     \\_______",
+  "(  o     o        )",
+  " \\________________/",
+  "   ^^    ^^    ^^",
+];
+
+const SNAKE = [
+  "  ,~~^~~,~~^~~,",
+  " ( o             )==>",
+  "  `~~,~~^~~,~~^~'",
+];
+
+const SHARK_FIN = [
+  "        /\\",
+  "       /  \\",
+  "      /    \\",
+  " ____/      \\________",
+  "~~~~~~~~~~~~~~~~~~~~~~",
+];
+
+const OWL = [
+  "   ,^..^,",
+  "  ( O  O )",
+  "   )  ~  (",
+  "  (___||___)",
+  "    ^    ^",
+];
+
 function scrollFrame(art: string[], offset: number): string {
   return art
     .map((line) => {
@@ -148,6 +179,22 @@ async function runScroller(api: EffectAPI, art: string[]): Promise<void> {
 let coffeeCount = 0;
 
 const FILES = ["about.txt", "contact.txt", "projects/"];
+
+const FORTUNES = [
+  "There are only two hard things in computer science: cache invalidation and naming things.",
+  "It works on my machine.",
+  "99 little bugs in the code, 99 little bugs. take one down, patch it around, 127 little bugs in the code.",
+  "Weeks of coding can save you hours of planning.",
+  "There is no cloud. it's just someone else's computer.",
+  "A SQL query walks into a bar, walks up to two tables and asks: 'can I join you?'",
+  "To understand recursion, you must first understand recursion.",
+  "I would love to change the world, but they won't give me the source code.",
+];
+
+// Commands excluded from the 'achievements' checklist — meta/utility, not
+// really "secrets" to hunt for.
+const ACHIEVEMENT_EXEMPT = new Set(["help-hidden", "achievements"]);
+const discoveredSecrets = new Set<string>();
 
 export const COMMANDS: Record<string, CommandSpec> = {
   help: {
@@ -376,6 +423,151 @@ export const COMMANDS: Record<string, CommandSpec> = {
       return { effect: (api) => runScroller(api, BEAVER) };
     },
   },
+  capybara: {
+    summary: "a capybara strolls by",
+    hidden: true,
+    run: () => ({
+      effect: (api) => runScroller(api, CAPYBARA),
+    }),
+  },
+  snake: {
+    summary: "a snake slithers by",
+    hidden: true,
+    run: () => ({
+      effect: (api) => runScroller(api, SNAKE),
+    }),
+  },
+  shark: {
+    summary: "dun dun...",
+    hidden: true,
+    run: () => ({
+      effect: async (api) => {
+        api.print("dun dun...");
+        await api.sleep(700);
+        api.print("dun dun...");
+        await api.sleep(500);
+        api.print("dun dun dun dun");
+        await api.sleep(300);
+        await runScroller(api, SHARK_FIN);
+      },
+    }),
+  },
+  owl: {
+    summary: "an owl flies by",
+    hidden: true,
+    run: () => ({
+      effect: async (api) => {
+        api.print("<span class=\"dim\">it's quiet tonight...</span>");
+        await api.sleep(500);
+        await runScroller(api, OWL);
+      },
+    }),
+  },
+  bsod: {
+    summary: "oops",
+    hidden: true,
+    run: () => ({
+      effect: async (api) => {
+        await runBsod();
+        api.print("...aaand we're back. that was fun.");
+      },
+    }),
+  },
+  dialup: {
+    summary: "connecting to the internet",
+    hidden: true,
+    run: () => ({
+      effect: async (api) => {
+        new Audio("/dialup.mp3").play().catch(() => {
+          // autoplay blocked; not worth surfacing to the visitor.
+        });
+        const steps = ["dialing...", "connecting...", "handshaking...", "negotiating...", "connected at 56.6 kbps."];
+        for (const step of steps) {
+          api.print(step);
+          await api.sleep(900);
+        }
+      },
+    }),
+  },
+  virus: {
+    summary: "uh oh",
+    hidden: true,
+    run: () => ({
+      effect: async (api) => {
+        api.print('<span class="highlight">[!] VIRUS DETECTED [!]</span>');
+        await api.sleep(500);
+        api.print("scanning system files...");
+        await api.sleep(700);
+        api.print("infected files: 1,337");
+        await api.sleep(700);
+        api.print("&nbsp;");
+        api.print("relax — it's just a joke. no viruses here, promise.");
+      },
+    }),
+  },
+  credits: {
+    summary: "roll the credits",
+    hidden: true,
+    run: () => ({
+      effect: async (api) => {
+        const lines = [
+          "",
+          "JULIAN SKINNER — PORTFOLIO",
+          "",
+          "built with:",
+          "  Vite",
+          "  TypeScript",
+          "",
+          "directed & developed by:",
+          "  Julian Skinner",
+          "",
+          "thanks for visiting.",
+        ];
+        for (const line of lines) {
+          api.print(line ? escapeHtml(line) : "&nbsp;");
+          await api.sleep(350);
+        }
+      },
+    }),
+  },
+  achievements: {
+    summary: "track down all the secrets",
+    hidden: true,
+    run: () => {
+      const trackable = Object.entries(COMMANDS).filter(
+        ([name, spec]) => spec.hidden && !ACHIEVEMENT_EXEMPT.has(name)
+      );
+      const found = trackable.filter(([name]) => discoveredSecrets.has(name));
+      return {
+        lines: [
+          `Secrets found: <span class="highlight">${found.length}</span> / ${trackable.length}`,
+          "&nbsp;",
+          ...trackable.map(([name]) =>
+            discoveredSecrets.has(name)
+              ? `  [x] <span class="highlight">${escapeHtml(name)}</span>`
+              : "  [ ] ???"
+          ),
+        ],
+      };
+    },
+  },
+  rickroll: {
+    summary: "you know what this is",
+    hidden: true,
+    run: () => ({
+      lines: ["never gonna give you up", "never gonna let you down", "&nbsp;", "...you know the rest."],
+    }),
+  },
+  fortune: {
+    summary: "a fortune, programmer-style",
+    hidden: true,
+    run: () => ({ lines: [escapeHtml(FORTUNES[Math.floor(Math.random() * FORTUNES.length)])] }),
+  },
+  flip: {
+    summary: "heads or tails",
+    hidden: true,
+    run: () => ({ lines: [Math.random() < 0.5 ? "heads." : "tails."] }),
+  },
   decaf: {
     summary: "switch to decaf",
     hidden: true,
@@ -433,12 +625,16 @@ export const COMMANDS: Record<string, CommandSpec> = {
 export function runCommand(input: string, history: string[]): CommandResult {
   const trimmed = input.trim();
   if (!trimmed) return {};
-  const [cmd, ...args] = trimmed.split(/\s+/);
-  const spec = COMMANDS[cmd.toLowerCase()];
+  const [rawCmd, ...args] = trimmed.split(/\s+/);
+  const cmd = rawCmd.toLowerCase();
+  const spec = COMMANDS[cmd];
   if (!spec) {
     return {
-      lines: [`command not found: ${escapeHtml(cmd)} <span class="dim">(type 'help' for a list of commands)</span>`],
+      lines: [`command not found: ${escapeHtml(rawCmd)} <span class="dim">(type 'help' for a list of commands)</span>`],
     };
+  }
+  if (spec.hidden && !ACHIEVEMENT_EXEMPT.has(cmd)) {
+    discoveredSecrets.add(cmd);
   }
   return spec.run(args, history);
 }

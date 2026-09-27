@@ -228,6 +228,20 @@ body.win98 .win98-bar-buttons span {
   pointer-events: none;
 }
 
+#bsod-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  background: #0000aa;
+  color: #fff;
+  font-family: "Courier New", monospace;
+  font-size: 20px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  padding: 60px;
+  box-sizing: border-box;
+}
+
 @media (max-width: 600px) {
   #terminal {
     padding: 12px;
