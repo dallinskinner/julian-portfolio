@@ -50,6 +50,23 @@ export const CONTACT_LINKS: ContactLink[] = [
   },
 ];
 
+export const NOW_LINES: string[] = [
+  // TODO: replace with what you're actually up to right now.
+  "Building out this portfolio and shipping small projects on the side.",
+  "Always happy to talk music, code, or both — see 'contact'.",
+];
+
+// TODO: swap in your real favorite quote.
+export const QUOTE = '"Stay hungry, stay foolish." — Steve Jobs';
+
+export const USES_LINES: string[] = [
+  // TODO: replace with your actual setup.
+  "Editor:   VS Code",
+  "Terminal: iTerm2 + zsh",
+  "OS:       macOS",
+  "Keyboard: whatever's within reach",
+];
+
 export function slugify(name: string): string {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 }

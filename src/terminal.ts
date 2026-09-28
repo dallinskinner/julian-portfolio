@@ -1,8 +1,9 @@
-import { NAME } from "./content";
 import { commandNames, runCommand, type EffectAPI } from "./commands";
 import { escapeHtml } from "./utils";
 import { fastSleep } from "./speed";
 import { recordVisit } from "./visitors";
+import { banner } from "./banner";
+import { applyPersistedTheme } from "./theme";
 
 const PROMPT = "visitor@julian-skinner:~$";
 const BOOT_LINES = [
@@ -11,18 +12,6 @@ const BOOT_LINES = [
   "mounting /dev/portfolio ........ [ ok ]",
   "starting julian-term ........... [ ok ]",
 ];
-
-function banner(): string {
-  const label = ` ${NAME} `;
-  const width = Math.max(label.length + 2, 20);
-  const top = "┌" + "─".repeat(width) + "┐";
-  const bottom = "└" + "─".repeat(width) + "┘";
-  const pad = width - label.length;
-  const left = Math.floor(pad / 2);
-  const right = pad - left;
-  const mid = "│" + " ".repeat(left) + label + " ".repeat(right) + "│";
-  return [top, mid, bottom].join("\n");
-}
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -66,6 +55,7 @@ export class Terminal {
 
     this.input.addEventListener("keydown", (e) => this.onKeyDown(e));
 
+    applyPersistedTheme();
     void recordVisit();
     void this.boot();
   }

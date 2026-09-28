@@ -1,11 +1,13 @@
-import { ABOUT_LINES, CONTACT_LINKS, NAME, PROJECTS, slugify } from "./content";
-import { escapeHtml } from "./utils";
+import { ABOUT_LINES, CONTACT_LINKS, NAME, NOW_LINES, PROJECTS, QUOTE, USES_LINES, slugify } from "./content";
+import { escapeHtml, evaluateExpression } from "./utils";
 import { toggleMatrix } from "./matrix";
 import { runExplosion } from "./explosion";
 import { getSpeedMultiplier, setSpeedMultiplier } from "./speed";
 import { getVisitCount, resetLocalVisitFlag } from "./visitors";
 import { runBsod } from "./bsod";
 import { runOops } from "./oops";
+import { banner } from "./banner";
+import { availableThemes, isThemeName, setTheme } from "./theme";
 
 export type CommandOutput = string[];
 
@@ -30,6 +32,8 @@ export type CommandHandler = (args: string[], history: string[]) => CommandResul
 interface CommandSpec {
   summary: string;
   hidden?: boolean;
+  /** Longer explanation shown by 'man <command>'. Falls back to summary if omitted. */
+  manual?: string[];
   run: CommandHandler;
 }
 
@@ -201,6 +205,17 @@ const FORTUNES = [
   "I would love to change the world, but they won't give me the source code.",
 ];
 
+const JOKES = [
+  "Why do programmers prefer dark mode? Because light attracts bugs.",
+  "I told my computer I needed a break, and it said no problem — it froze immediately.",
+  "How many programmers does it take to change a light bulb? None — that's a hardware problem.",
+  "Why do Java developers wear glasses? Because they can't C#.",
+  "A byte walks into a bar looking sad. The bartender asks what's wrong. It says, \"parity error.\"",
+  "I would tell you a UDP joke, but you might not get it.",
+  "Why did the developer go broke? Because they used up all their cache.",
+  "There's no place like 127.0.0.1.",
+];
+
 // Commands excluded from the 'achievements' checklist — meta/utility, not
 // really "secrets" to hunt for.
 const ACHIEVEMENT_EXEMPT = new Set(["help-hidden", "achievements"]);
@@ -209,6 +224,7 @@ const discoveredSecrets = new Set<string>();
 export const COMMANDS: Record<string, CommandSpec> = {
   help: {
     summary: "list available commands",
+    manual: ["Lists every public command with a one-line summary.", "For more detail on a specific command, try 'man <command>'."],
     run: () => ({
       lines: [
         "Available commands:",
@@ -232,9 +248,26 @@ export const COMMANDS: Record<string, CommandSpec> = {
       ],
     }),
   },
+  man: {
+    summary: "man <command> — read more about a command",
+    manual: ["Shows a longer explanation of a command than 'help' does.", "Example: man matrix"],
+    run: (args) => {
+      const name = args[0]?.toLowerCase();
+      if (!name) return { lines: ["usage: man <command>"] };
+      const spec = COMMANDS[name];
+      if (!spec) return { lines: [`No manual entry for ${escapeHtml(name)}.`] };
+      return { lines: (spec.manual ?? [spec.summary]).map((line) => escapeHtml(line)) };
+    },
+  },
   about: {
     summary: "about me",
+    manual: ["A short bio.", "See also: 'now' for what I'm currently up to, and 'uses' for my setup."],
     run: () => ({ lines: renderAbout() }),
+  },
+  now: {
+    summary: "what I'm up to right now",
+    manual: ["A quick note on what I'm currently focused on — updated occasionally."],
+    run: () => ({ lines: NOW_LINES.map((line) => (line ? escapeHtml(line) : "&nbsp;")) }),
   },
   whoami: {
     summary: "alias for 'about'",
@@ -243,14 +276,22 @@ export const COMMANDS: Record<string, CommandSpec> = {
   },
   projects: {
     summary: "list my projects",
+    manual: ["Lists my projects with a short description, tech used, and a link.", "Try 'cat <name>.txt' for one project's detail, or 'ls projects' to list just the names."],
     run: () => ({ lines: renderProjects() }),
   },
   contact: {
     summary: "how to reach me",
+    manual: ["Ways to get in touch."],
     run: () => ({ lines: renderContact() }),
+  },
+  uses: {
+    summary: "what I use day to day",
+    manual: ["The tools, editor, and setup I use — the classic personal-site '/uses' page, but a command."],
+    run: () => ({ lines: USES_LINES.map((line) => escapeHtml(line)) }),
   },
   visitors: {
     summary: "how many people have visited this site",
+    manual: ["Shows the total visit count, tracked with a free anonymous counter service — no account or backend of my own needed."],
     run: () => ({
       effect: async (api) => {
         api.print("checking the counter...");
@@ -280,6 +321,7 @@ export const COMMANDS: Record<string, CommandSpec> = {
   },
   ls: {
     summary: "list files",
+    manual: ["Lists the 'files' on this pretend filesystem.", "Try 'ls projects' to list project files specifically."],
     run: (args) => {
       if (args[0] === "projects") {
         return { lines: PROJECTS.map((p) => `${slugify(p.name)}.txt`) };
@@ -289,6 +331,7 @@ export const COMMANDS: Record<string, CommandSpec> = {
   },
   cat: {
     summary: "cat <file> — print a file's contents",
+    manual: ["Prints a 'file' from the pretend filesystem shown by 'ls'.", "Example: cat about.txt"],
     run: (args) => {
       const file = args[0];
       if (!file) return { lines: ["usage: cat &lt;file&gt;"] };
@@ -304,10 +347,12 @@ export const COMMANDS: Record<string, CommandSpec> = {
   },
   clear: {
     summary: "clear the terminal",
+    manual: ["Clears everything printed so far. Doesn't affect command history."],
     run: () => ({ clear: true }),
   },
   history: {
     summary: "show command history",
+    manual: ["Lists every command you've run this session, in order."],
     run: (_args, history) => ({
       lines: history.length
         ? history.map((h, i) => `  ${String(i + 1).padStart(3)}  ${escapeHtml(h)}`)
@@ -316,14 +361,35 @@ export const COMMANDS: Record<string, CommandSpec> = {
   },
   date: {
     summary: "show the current date/time",
+    manual: ["Shows your browser's current local date and time."],
     run: () => ({ lines: [escapeHtml(new Date().toString())] }),
   },
   echo: {
     summary: "echo <text>",
+    manual: ["Prints back whatever text you give it."],
     run: (args) => ({ lines: [escapeHtml(args.join(" "))] }),
+  },
+  calc: {
+    summary: "calc <expression> — basic arithmetic",
+    manual: [
+      "Evaluates a math expression: + - * / ^ and parentheses.",
+      "Example: calc (2 + 3) * 4",
+      "Doesn't use eval() — a small parser built just for this, on purpose.",
+    ],
+    run: (args) => {
+      const expr = args.join(" ");
+      if (!expr) return { lines: ["usage: calc <expression>"] };
+      try {
+        const result = evaluateExpression(expr);
+        return { lines: [escapeHtml(`${expr} = ${result}`)] };
+      } catch (err) {
+        return { lines: [`calc: ${escapeHtml(err instanceof Error ? err.message : "invalid expression")}`] };
+      }
+    },
   },
   neofetch: {
     summary: "show system info",
+    manual: ["A fake system-info readout, styled after the real neofetch tool.", "Shows the current speed multiplier — see 'coffee' and its hidden friends."],
     run: () => ({
       lines: [
         `<span class="highlight">visitor</span>@<span class="highlight">${escapeHtml(slugify(NAME))}</span>`,
@@ -341,6 +407,7 @@ export const COMMANDS: Record<string, CommandSpec> = {
   },
   coffee: {
     summary: "brew some coffee",
+    manual: ["Brews a virtual cup of coffee, with a little progress bar.", "Do it 10 times in one session and see what happens."],
     run: () => {
       coffeeCount++;
       const hitUltra = coffeeCount === 10;
@@ -372,12 +439,46 @@ export const COMMANDS: Record<string, CommandSpec> = {
   },
   meow: {
     summary: "where did my cat go?",
+    manual: ["Just a cat. Says meow."],
     run: () => ({
       lines: [" /\\_/\\", "( o.o )  meow", " > ^ <"],
     }),
   },
+  joke: {
+    summary: "tell me a joke",
+    manual: ["A random, clean programmer joke."],
+    run: () => ({ lines: [escapeHtml(JOKES[Math.floor(Math.random() * JOKES.length)])] }),
+  },
+  quote: {
+    summary: "a favorite quote",
+    manual: ["A quote I like."],
+    run: () => ({ lines: [escapeHtml(QUOTE)] }),
+  },
+  banner: {
+    summary: "reprint the name banner",
+    manual: ["Reprints the ASCII banner shown when the terminal boots."],
+    run: () => ({ lines: [`<pre class="banner">${escapeHtml(banner())}</pre>`] }),
+  },
+  theme: {
+    summary: "theme <green|amber|blue> — switch color scheme",
+    manual: [
+      "Switches the terminal's phosphor color.",
+      `Available: ${availableThemes().join(", ")}`,
+      "Your choice is remembered for next time (stored only in your browser).",
+    ],
+    run: (args) => {
+      const name = args[0]?.toLowerCase();
+      if (!name) return { lines: [`usage: theme <${availableThemes().join("|")}>`] };
+      if (!isThemeName(name)) {
+        return { lines: [`unknown theme: ${escapeHtml(name)} <span class="dim">(try ${availableThemes().join(", ")})</span>`] };
+      }
+      setTheme(name);
+      return { lines: [`theme set to ${name}.`] };
+    },
+  },
   matrix: {
     summary: "toggle the matrix (try 'matrix <text>')",
+    manual: ["Toggles the falling-code background effect.", "Give it text to rain your own characters instead: matrix <text>"],
     run: (args) => {
       const text = args.join(" ");
       const running = toggleMatrix(text);
@@ -387,6 +488,7 @@ export const COMMANDS: Record<string, CommandSpec> = {
   },
   hack: {
     summary: "do not run this",
+    manual: ["Exactly what it sounds like. Purely for fun — nothing on this site is actually at risk."],
     run: () => ({
       effect: async (api) => {
         api.print('<span class="highlight">initiating hack sequence...</span>');

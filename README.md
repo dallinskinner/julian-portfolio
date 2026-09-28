@@ -19,14 +19,18 @@ npm run preview # preview the production build locally
 
 ## Edit content
 
-All editable content (name, about text, projects, contact links) lives in
-`src/content.ts` — edit that file and nothing else needs to change.
+All editable content (name, about text, projects, contact links, the `now`/
+`quote`/`uses` command text) lives in `src/content.ts` — edit that file and
+nothing else needs to change. A few of these are placeholder text marked
+`// TODO`, ready for you to personalize.
 
 ## Commands available in the terminal
 
-`help`, `about` (`whoami`), `projects`, `contact`, `visitors`, `ls`,
-`cat <file>`, `clear`, `history`, `date`, `echo <text>`, `neofetch`, `coffee`,
-`matrix` (try `matrix <text>` to rain your own text), `meow`, `hack`.
+`help`, `man <command>`, `about` (`whoami`), `now`, `projects`, `contact`,
+`uses`, `visitors`, `ls`, `cat <file>`, `clear`, `history`, `date`,
+`echo <text>`, `calc <expression>`, `neofetch`, `coffee`, `meow`, `joke`,
+`quote`, `banner`, `theme <green|amber|blue>`,
+`matrix` (try `matrix <text>` to rain your own text), `hack`.
 
 There are also ~20 hidden easter-egg commands not listed in `help` — try
 `help-hidden` in the terminal to see them all, or `achievements` to track

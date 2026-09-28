@@ -39,6 +39,29 @@ body {
   isolation: isolate;
 }
 
+/* --- color themes (the 'theme' command) --- */
+body.theme-amber #terminal {
+  --fg: #ffb000;
+  --fg-dim: #8a5d00;
+  --fg-bright: #ffd280;
+  --accent: #ffb000;
+  --glow: 0 0 2px rgba(255, 176, 0, 0.6);
+  color: var(--fg);
+  background: var(--bg);
+  font-family: var(--mono);
+}
+
+body.theme-blue #terminal {
+  --fg: #33ccff;
+  --fg-dim: #1a6b8a;
+  --fg-bright: #b3ecff;
+  --accent: #33ccff;
+  --glow: 0 0 2px rgba(51, 204, 255, 0.6);
+  color: var(--fg);
+  background: var(--bg);
+  font-family: var(--mono);
+}
+
 #terminal::before {
   content: "";
   position: fixed;
