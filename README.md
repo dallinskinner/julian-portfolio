@@ -28,9 +28,12 @@ nothing else needs to change. A few of these are placeholder text marked
 
 `help`, `man <command>`, `about` (`whoami`), `now`, `projects`, `contact`,
 `uses`, `visitors`, `ls`, `cat <file>`, `clear`, `history`, `date`,
-`echo <text>`, `calc <expression>`, `neofetch`, `coffee`, `meow`, `joke`,
-`quote`, `banner`, `theme <green|amber|blue>`,
-`matrix` (try `matrix <text>` to rain your own text), `hack`.
+`countdown <date>`, `age <year>`, `echo <text>`, `calc <expression>`,
+`binary <n>`, `hex <n>`, `password [length]`, `lorem [words]`, `neofetch`,
+`stats`, `worldclock`, `coffee`, `meow`, `joke`, `compliment`, `motivate`,
+`riddle`, `lucky`, `trivia`, `catfact`, `rate <thing>`, `quote`, `banner`,
+`theme <green|amber|blue>`, `matrix` (try `matrix <text>` to rain your own
+text), `hack`, `achievements`.
 
 There are also ~40 hidden easter-egg commands not listed in `help` — try
 `help-hidden` in the terminal to see them all, or `achievements` to track

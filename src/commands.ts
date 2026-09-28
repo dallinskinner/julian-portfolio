@@ -242,6 +242,83 @@ const JOKES = [
   "There's no place like 127.0.0.1.",
 ];
 
+const COMPLIMENTS = [
+  "You write clean commit messages. That's rarer than it should be.",
+  "You're the kind of person who actually reads the docs.",
+  "Your curiosity is contagious — thanks for poking around in here.",
+  "You have great taste in portfolio websites.",
+  "You'd definitely survive a code review from me.",
+  "You ask good questions.",
+  "You're clearly someone who finishes what they start.",
+  "You make debugging look easy.",
+  "Your rubber duck is lucky to have you.",
+  "You're doing better than you think you are.",
+];
+
+const MOTIVATIONS = [
+  "The bug you're stuck on right now will make sense in about ten minutes.",
+  "Ship it. You can refactor later.",
+  "Every expert was once a beginner who didn't give up.",
+  "Small progress is still progress.",
+  "You don't have to be great to start, but you have to start to be great.",
+  "The code you wrote a year ago was bad. That means you're improving.",
+  "Take a break. The problem will still be there, but your brain will work better.",
+  "Done is better than perfect.",
+  "You've solved harder problems than this before.",
+  "Nobody who ships software has it all figured out. Keep going.",
+];
+
+const RIDDLES: { q: string; a: string }[] = [
+  { q: "The more you take, the more you leave behind. What am I?", a: "Footsteps." },
+  { q: "I speak without a mouth and hear without ears. What am I?", a: "An echo." },
+  { q: "What has keys but no locks, space but no room, and you can enter but not go in?", a: "A keyboard." },
+  { q: "What gets wetter as it dries?", a: "A towel." },
+  { q: "I'm tall when I'm young and short when I'm old. What am I?", a: "A candle." },
+  { q: "What has to be broken before you can use it?", a: "An egg." },
+];
+
+const TRIVIA_FACTS = [
+  "The first computer bug was an actual moth found in a Harvard Mark II relay in 1947.",
+  "The QWERTY keyboard layout was designed to slow typists down, not speed them up.",
+  "The first website ever published is still online: info.cern.ch.",
+  "A single Google search uses about as much energy as running a 60W lightbulb for a few seconds.",
+  "The term 'debugging' predates computers — it was used in engineering long before software existed.",
+  "The first domain name ever registered was symbolics.com, in 1985.",
+  "More lines of code have been written for JavaScript-based web pages than almost any other purpose in modern computing.",
+  "The average smartphone today has vastly more computing power than the computers used for the Apollo moon landings.",
+  "The @ symbol was chosen for email addresses in 1971 simply because it was an unused key on the keyboard.",
+  "Most of the world's undersea internet cables are about as thick as a garden hose.",
+];
+
+const CAT_FACTS = [
+  "Cats spend around 70% of their lives asleep.",
+  "A group of cats is called a clowder.",
+  "Cats can't taste sweetness — they lack the taste receptor for it.",
+  "A cat's whiskers are roughly as wide as its body, helping it judge gaps.",
+  "Cats have a third eyelid called a haw.",
+  "A cat's purr typically occurs at a frequency that can promote healing.",
+  "Most cats have no eyelashes.",
+  "Cats can rotate their ears roughly 180 degrees.",
+];
+
+const LOREM_WORDS = [
+  "lorem", "ipsum", "dolor", "sit", "amet", "consectetur", "adipiscing", "elit", "sed", "do",
+  "eiusmod", "tempor", "incididunt", "ut", "labore", "et", "dolore", "magna", "aliqua", "enim",
+  "ad", "minim", "veniam", "quis", "nostrud", "exercitation", "ullamco", "laboris", "nisi", "aliquip",
+  "ex", "ea", "commodo", "consequat", "duis", "aute", "irure", "in", "reprehenderit", "voluptate",
+];
+
+const RATE_COMMENTS = [
+  "not bad at all.",
+  "surprisingly solid.",
+  "could use some work.",
+  "chef's kiss.",
+  "honestly kind of iconic.",
+  "eh, it's fine.",
+  "underrated, in my opinion.",
+  "10/10 would rate again.",
+];
+
 const EIGHT_BALL_ANSWERS = [
   "It is certain.",
   "Without a doubt.",
@@ -292,6 +369,12 @@ let guessAttempts = 0;
 // really "secrets" to hunt for.
 const ACHIEVEMENT_EXEMPT = new Set(["help-hidden", "achievements"]);
 const discoveredSecrets = new Set<string>();
+
+function getAchievementProgress(): { found: number; total: number } {
+  const trackable = Object.entries(COMMANDS).filter(([name, spec]) => spec.hidden && !ACHIEVEMENT_EXEMPT.has(name));
+  const found = trackable.filter(([name]) => discoveredSecrets.has(name));
+  return { found: found.length, total: trackable.length };
+}
 
 export const COMMANDS: Record<string, CommandSpec> = {
   help: {
@@ -436,6 +519,29 @@ export const COMMANDS: Record<string, CommandSpec> = {
     manual: ["Shows your browser's current local date and time."],
     run: () => ({ lines: [escapeHtml(new Date().toString())] }),
   },
+  countdown: {
+    summary: "countdown <date> — days until (or since) a date",
+    manual: ["Reports how many days remain until a given date, or how long ago it was.", "Example: countdown 2026-12-25"],
+    run: (args) => {
+      const input = args.join(" ");
+      const target = new Date(input);
+      if (!input || Number.isNaN(target.getTime())) return { lines: ["usage: countdown &lt;date&gt;"] };
+      const days = Math.round((target.getTime() - Date.now()) / 86_400_000);
+      if (days === 0) return { lines: ["that's today!"] };
+      return { lines: [days > 0 ? `${days} day${days === 1 ? "" : "s"} to go.` : `that was ${-days} day${-days === 1 ? "" : "s"} ago.`] };
+    },
+  },
+  age: {
+    summary: "age <year> — how many years since a year",
+    manual: ["Reports how many years have passed since a given year.", "Example: age 2000"],
+    run: (args) => {
+      const year = parseInt(args[0], 10);
+      const currentYear = new Date().getFullYear();
+      if (!args[0] || !Number.isInteger(year) || year > currentYear) return { lines: ["usage: age &lt;year&gt;"] };
+      const years = currentYear - year;
+      return { lines: [years === 0 ? "that's this year." : `${years} year${years === 1 ? "" : "s"}.`] };
+    },
+  },
   echo: {
     summary: "echo <text>",
     manual: ["Prints back whatever text you give it."],
@@ -459,6 +565,48 @@ export const COMMANDS: Record<string, CommandSpec> = {
       }
     },
   },
+  binary: {
+    summary: "binary <n> — decimal to binary",
+    manual: ["Converts a decimal number to binary.", "Example: binary 42"],
+    run: (args) => {
+      const n = Number(args[0]);
+      if (args[0] === undefined || !Number.isInteger(n)) return { lines: ["usage: binary &lt;n&gt;"] };
+      return { lines: [escapeHtml(`${n} = ${n < 0 ? "-" : ""}0b${Math.abs(n).toString(2)}`)] };
+    },
+  },
+  hex: {
+    summary: "hex <n> — decimal to hexadecimal",
+    manual: ["Converts a decimal number to hexadecimal.", "Example: hex 255"],
+    run: (args) => {
+      const n = Number(args[0]);
+      if (args[0] === undefined || !Number.isInteger(n)) return { lines: ["usage: hex &lt;n&gt;"] };
+      return { lines: [escapeHtml(`${n} = ${n < 0 ? "-" : ""}0x${Math.abs(n).toString(16)}`)] };
+    },
+  },
+  password: {
+    summary: "password [length] — generate a random password",
+    manual: ["Generates a random password from letters, digits, and symbols.", "Default length 12; clamped between 4 and 64."],
+    run: (args) => {
+      const charset = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789!@#$%^&*-_=+";
+      const requested = parseInt(args[0], 10);
+      const length = Math.min(64, Math.max(4, Number.isFinite(requested) ? requested : 12));
+      let out = "";
+      for (let i = 0; i < length; i++) out += charset[Math.floor(Math.random() * charset.length)];
+      return { lines: [escapeHtml(out)] };
+    },
+  },
+  lorem: {
+    summary: "lorem [words] — placeholder text",
+    manual: ["Generates lorem ipsum placeholder text.", "Default 20 words; clamped up to 200."],
+    run: (args) => {
+      const requested = parseInt(args[0], 10);
+      const count = Math.min(200, Math.max(1, Number.isFinite(requested) ? requested : 20));
+      const words: string[] = [];
+      for (let i = 0; i < count; i++) words.push(LOREM_WORDS[Math.floor(Math.random() * LOREM_WORDS.length)]);
+      const text = words.join(" ");
+      return { lines: [escapeHtml(text.charAt(0).toUpperCase() + text.slice(1) + ".")] };
+    },
+  },
   neofetch: {
     summary: "show system info",
     manual: ["A fake system-info readout, styled after the real neofetch tool.", "Shows the current speed multiplier — see 'coffee' and its hidden friends."],
@@ -476,6 +624,45 @@ export const COMMANDS: Record<string, CommandSpec> = {
         }`,
       ],
     }),
+  },
+  stats: {
+    summary: "a little site dashboard",
+    manual: ["Combines the visitor count, your achievements progress, and this session's uptime."],
+    run: () => ({
+      effect: async (api) => {
+        api.print("gathering stats...");
+        const count = await getVisitCount();
+        const { found, total } = getAchievementProgress();
+        api.print(
+          `<span class="dim">Visits:</span> ${count === null ? "unavailable" : `<span class="highlight">${count}</span>`}`
+        );
+        api.print(`<span class="dim">Secrets found:</span> <span class="highlight">${found}</span> / ${total}`);
+        api.print(`<span class="dim">Session uptime:</span> ${Math.max(1, Math.round(performance.now() / 1000))}s`);
+      },
+    }),
+  },
+  worldclock: {
+    summary: "the time around the world",
+    manual: ["Shows the current time in a few different timezones."],
+    run: () => {
+      const zones: [string, string][] = [
+        ["New York", "America/New_York"],
+        ["London", "Europe/London"],
+        ["Tokyo", "Asia/Tokyo"],
+        ["Sydney", "Australia/Sydney"],
+      ];
+      return {
+        lines: zones.map(([label, tz]) => {
+          const time = new Intl.DateTimeFormat("en-US", {
+            timeZone: tz,
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: true,
+          }).format(new Date());
+          return `<span class="dim">${escapeHtml(label)}:</span> ${escapeHtml(time)}`;
+        }),
+      };
+    },
   },
   coffee: {
     summary: "brew some coffee",
@@ -520,6 +707,62 @@ export const COMMANDS: Record<string, CommandSpec> = {
     summary: "tell me a joke",
     manual: ["A random, clean programmer joke."],
     run: () => ({ lines: [escapeHtml(JOKES[Math.floor(Math.random() * JOKES.length)])] }),
+  },
+  compliment: {
+    summary: "get a compliment",
+    manual: ["A random nice compliment, because why not."],
+    run: () => ({ lines: [escapeHtml(COMPLIMENTS[Math.floor(Math.random() * COMPLIMENTS.length)])] }),
+  },
+  motivate: {
+    summary: "a little encouragement",
+    manual: ["A random bit of encouragement for whatever you're working on."],
+    run: () => ({ lines: [escapeHtml(MOTIVATIONS[Math.floor(Math.random() * MOTIVATIONS.length)])] }),
+  },
+  riddle: {
+    summary: "a short riddle",
+    manual: ["Asks a riddle and reveals the answer after a short pause."],
+    run: () => {
+      const { q, a } = RIDDLES[Math.floor(Math.random() * RIDDLES.length)];
+      return {
+        effect: async (api) => {
+          api.print(escapeHtml(q));
+          await api.sleep(2500);
+          api.print(`<span class="dim">answer:</span> ${escapeHtml(a)}`);
+        },
+      };
+    },
+  },
+  lucky: {
+    summary: "your lucky number today",
+    manual: ["A 'lucky number of the day' — stable all day, changes tomorrow."],
+    run: () => {
+      const today = new Date().toISOString().slice(0, 10);
+      let seed = 0;
+      for (const ch of today) seed = (seed * 31 + ch.charCodeAt(0)) >>> 0;
+      const number = (seed % 100) + 1;
+      return { lines: [`Today's lucky number is <span class="highlight">${number}</span>.`] };
+    },
+  },
+  trivia: {
+    summary: "a random fun fact",
+    manual: ["A random piece of trivia, mostly about computing history."],
+    run: () => ({ lines: [escapeHtml(TRIVIA_FACTS[Math.floor(Math.random() * TRIVIA_FACTS.length)])] }),
+  },
+  catfact: {
+    summary: "a random cat fact",
+    manual: ["Exactly what it says."],
+    run: () => ({ lines: [escapeHtml(CAT_FACTS[Math.floor(Math.random() * CAT_FACTS.length)])] }),
+  },
+  rate: {
+    summary: "rate <thing> — rate anything out of 10",
+    manual: ["Gives whatever you type a completely unscientific rating out of 10."],
+    run: (args) => {
+      const thing = args.join(" ");
+      if (!thing) return { lines: ["usage: rate &lt;thing&gt;"] };
+      const score = Math.floor(Math.random() * 11);
+      const comment = RATE_COMMENTS[Math.floor(Math.random() * RATE_COMMENTS.length)];
+      return { lines: [`${escapeHtml(thing)}: <span class="highlight">${score}/10</span> — ${escapeHtml(comment)}`] };
+    },
   },
   quote: {
     summary: "a favorite quote",
@@ -844,13 +1087,11 @@ export const COMMANDS: Record<string, CommandSpec> = {
       "stay as '???' until you find them.",
     ],
     run: () => {
-      const trackable = Object.entries(COMMANDS).filter(
-        ([name, spec]) => spec.hidden && !ACHIEVEMENT_EXEMPT.has(name)
-      );
-      const found = trackable.filter(([name]) => discoveredSecrets.has(name));
+      const trackable = Object.entries(COMMANDS).filter(([name, spec]) => spec.hidden && !ACHIEVEMENT_EXEMPT.has(name));
+      const { found, total } = getAchievementProgress();
       return {
         lines: [
-          `Secrets found: <span class="highlight">${found.length}</span> / ${trackable.length}`,
+          `Secrets found: <span class="highlight">${found}</span> / ${total}`,
           "&nbsp;",
           ...trackable.map(([name]) =>
             discoveredSecrets.has(name)
