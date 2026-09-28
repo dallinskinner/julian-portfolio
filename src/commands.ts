@@ -837,7 +837,12 @@ export const COMMANDS: Record<string, CommandSpec> = {
   },
   achievements: {
     summary: "track down all the secrets",
-    hidden: true,
+    manual: [
+      "Shows how many hidden easter-egg commands you've found this session.",
+      "There are dozens hiding in this terminal — try things a real shell would have,",
+      "typo common commands, or just poke around. Found names show up here; the rest",
+      "stay as '???' until you find them.",
+    ],
     run: () => {
       const trackable = Object.entries(COMMANDS).filter(
         ([name, spec]) => spec.hidden && !ACHIEVEMENT_EXEMPT.has(name)
