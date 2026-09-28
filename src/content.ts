@@ -57,12 +57,12 @@ export const NOW_LINES: string[] = [
 ];
 
 // TODO: swap in your real favorite quote.
-export const QUOTE = '"Stay hungry, stay foolish." — Steve Jobs';
+export const QUOTE = '"pizza" — julian skinner';
 
 export const USES_LINES: string[] = [
   // TODO: replace with your actual setup.
-  "Editor:   VS Code",
-  "Terminal: iTerm2 + zsh",
+  "Editor:   Superset",
+  "Terminal: xterm.js and node-pty",
   "OS:       macOS",
   "Keyboard: whatever's within reach",
 ];

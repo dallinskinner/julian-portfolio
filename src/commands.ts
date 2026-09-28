@@ -8,6 +8,7 @@ import { runBsod } from "./bsod";
 import { runOops } from "./oops";
 import { banner } from "./banner";
 import { availableThemes, isThemeName, setTheme } from "./theme";
+import { renderAsciiText } from "./asciiFont";
 
 export type CommandOutput = string[];
 
@@ -168,6 +169,20 @@ const OWL = [
   "    ^    ^",
 ];
 
+const FOX = ["   /\\_/\\", "  ( >w< )~", "   > ^ <  ~~~"];
+
+const PENGUIN = ["   ,+++,", "  (o.o  )", "  (\")_(\")"];
+
+const TURTLE = [
+  "   __",
+  "  /  \\____",
+  " ( o  o    )--",
+  "  \\________/",
+  "   ^^  ^^",
+];
+
+const SPIDER = [" /\\oo/\\", "<  ||  >", " \\/  \\/"];
+
 function scrollFrame(art: string[], offset: number): string {
   return art
     .map((line) => {
@@ -178,15 +193,26 @@ function scrollFrame(art: string[], offset: number): string {
     .join("\n");
 }
 
-async function runScroller(api: EffectAPI, art: string[]): Promise<void> {
+async function runScroller(api: EffectAPI, art: string[], step = 3, delay = 45): Promise<void> {
   const width = Math.max(...art.map((l) => l.length));
   const start = 80;
   const end = -width;
   const el = api.printArt(scrollFrame(art, start));
-  for (let offset = start; offset > end; offset -= 3) {
+  for (let offset = start; offset > end; offset -= step) {
     el.textContent = scrollFrame(art, offset);
-    await api.sleep(45);
+    await api.sleep(delay);
   }
+  el.remove();
+}
+
+/** Grows a thread of '|' lines from the top, then holds briefly. */
+async function dropIn(api: EffectAPI, lines: number): Promise<void> {
+  const el = api.printArt("|");
+  for (let i = 1; i <= lines; i++) {
+    await api.sleep(120);
+    el.textContent = new Array(i).fill("|").join("\n");
+  }
+  await api.sleep(300);
   el.remove();
 }
 
@@ -215,6 +241,52 @@ const JOKES = [
   "Why did the developer go broke? Because they used up all their cache.",
   "There's no place like 127.0.0.1.",
 ];
+
+const EIGHT_BALL_ANSWERS = [
+  "It is certain.",
+  "Without a doubt.",
+  "You may rely on it.",
+  "Yes, definitely.",
+  "It is decidedly so.",
+  "As I see it, yes.",
+  "Most likely.",
+  "Outlook good.",
+  "Signs point to yes.",
+  "Reply hazy, try again.",
+  "Ask again later.",
+  "Better not tell you now.",
+  "Cannot predict now.",
+  "Concentrate and ask again.",
+  "Don't count on it.",
+  "My reply is no.",
+  "My sources say no.",
+  "Outlook not so good.",
+  "Very doubtful.",
+];
+
+const LEET_MAP: Record<string, string> = { a: "4", e: "3", i: "1", o: "0", s: "5", t: "7", b: "8", g: "9", l: "1" };
+
+const COW = [
+  "        \\   ^__^",
+  "         \\  (oo)\\_______",
+  "            (__)\\       )\\/\\",
+  "                ||----w |",
+  "                ||     ||",
+];
+
+function cowsayBubble(text: string): string[] {
+  const top = " " + "_".repeat(text.length + 2);
+  const bottom = " " + "-".repeat(text.length + 2);
+  return [top, `< ${text} >`, bottom];
+}
+
+const SCRAMBLE_CHARS = "!<>-_\\/[]{}=+*^?#$%&";
+function randomScrambleChar(): string {
+  return SCRAMBLE_CHARS[Math.floor(Math.random() * SCRAMBLE_CHARS.length)];
+}
+
+let secretNumber: number | null = null;
+let guessAttempts = 0;
 
 // Commands excluded from the 'achievements' checklist — meta/utility, not
 // really "secrets" to hunt for.
@@ -253,7 +325,7 @@ export const COMMANDS: Record<string, CommandSpec> = {
     manual: ["Shows a longer explanation of a command than 'help' does.", "Example: man matrix"],
     run: (args) => {
       const name = args[0]?.toLowerCase();
-      if (!name) return { lines: ["usage: man <command>"] };
+      if (!name) return { lines: ["usage: man &lt;command&gt;"] };
       const spec = COMMANDS[name];
       if (!spec) return { lines: [`No manual entry for ${escapeHtml(name)}.`] };
       return { lines: (spec.manual ?? [spec.summary]).map((line) => escapeHtml(line)) };
@@ -378,7 +450,7 @@ export const COMMANDS: Record<string, CommandSpec> = {
     ],
     run: (args) => {
       const expr = args.join(" ");
-      if (!expr) return { lines: ["usage: calc <expression>"] };
+      if (!expr) return { lines: ["usage: calc &lt;expression&gt;"] };
       try {
         const result = evaluateExpression(expr);
         return { lines: [escapeHtml(`${expr} = ${result}`)] };
@@ -468,7 +540,7 @@ export const COMMANDS: Record<string, CommandSpec> = {
     ],
     run: (args) => {
       const name = args[0]?.toLowerCase();
-      if (!name) return { lines: [`usage: theme <${availableThemes().join("|")}>`] };
+      if (!name) return { lines: [`usage: theme &lt;${availableThemes().join("|")}&gt;`] };
       if (!isThemeName(name)) {
         return { lines: [`unknown theme: ${escapeHtml(name)} <span class="dim">(try ${availableThemes().join(", ")})</span>`] };
       }
@@ -589,6 +661,37 @@ export const COMMANDS: Record<string, CommandSpec> = {
       },
     }),
   },
+  fox: {
+    summary: "a fox dashes by",
+    hidden: true,
+    run: () => ({
+      effect: (api) => runScroller(api, FOX, 6, 30),
+    }),
+  },
+  penguin: {
+    summary: "a penguin waddles by",
+    hidden: true,
+    run: () => ({
+      effect: (api) => runScroller(api, PENGUIN),
+    }),
+  },
+  turtle: {
+    summary: "a turtle crosses by",
+    hidden: true,
+    run: () => ({
+      effect: (api) => runScroller(api, TURTLE, 2, 60),
+    }),
+  },
+  spider: {
+    summary: "a spider creeps by",
+    hidden: true,
+    run: () => ({
+      effect: async (api) => {
+        await dropIn(api, 4);
+        await runScroller(api, SPIDER);
+      },
+    }),
+  },
   bsod: {
     summary: "everything crashes",
     hidden: true,
@@ -635,6 +738,75 @@ export const COMMANDS: Record<string, CommandSpec> = {
         await api.sleep(700);
         api.print("&nbsp;");
         api.print("relax — it's just a joke. no viruses here, promise.");
+      },
+    }),
+  },
+  crash: {
+    summary: "everything crashes (linux edition)",
+    hidden: true,
+    run: () => ({
+      effect: async (api) => {
+        const lines = [
+          "[   12.345678] Kernel panic - not syncing: Fatal exception",
+          "[   12.345680] CPU: 0 PID: 1337 Comm: julian-term Not tainted",
+          "[   12.345682] Call Trace:",
+          "[   12.345684]  panic+0x1p1/0x2p0",
+          "[   12.345686]  do_exit+0x0/0x0",
+          "[   12.345688] ---[ end Kernel panic - not syncing: Fatal exception ]---",
+        ];
+        for (const line of lines) {
+          api.print(escapeHtml(line), "dim");
+          await api.sleep(250);
+        }
+        api.print("&nbsp;");
+        api.print("just kidding, everything's fine.");
+      },
+    }),
+  },
+  format: {
+    summary: "format C:",
+    hidden: true,
+    run: () => ({
+      effect: async (api) => {
+        api.print('<span class="highlight">WARNING: this will erase all data on C:\\</span>');
+        await api.sleep(600);
+        api.print("Proceed? (y/n)");
+        await api.sleep(800);
+        api.print("...");
+        await api.sleep(500);
+        api.print("just kidding. your data (and this portfolio) is safe.");
+      },
+    }),
+  },
+  ping: {
+    summary: "ping [host]",
+    hidden: true,
+    run: (args) => ({
+      effect: async (api) => {
+        const host = args[0] || "julianskinner.vercel.app";
+        api.print(`PING ${escapeHtml(host)} (203.0.113.1): 56 data bytes`);
+        for (let seq = 0; seq < 4; seq++) {
+          await api.sleep(350);
+          const time = (8 + Math.random() * 20).toFixed(1);
+          api.print(`64 bytes from 203.0.113.1: icmp_seq=${seq} ttl=57 time=${time} ms`);
+        }
+        await api.sleep(300);
+        api.print("&nbsp;");
+        api.print(`--- ${escapeHtml(host)} ping statistics ---`);
+        api.print("4 packets transmitted, 4 packets received, 0% packet loss");
+      },
+    }),
+  },
+  ddos: {
+    summary: "attack this website",
+    hidden: true,
+    run: () => ({
+      effect: async (api) => {
+        api.print("initiating DDoS attack...");
+        await api.sleep(600);
+        api.print("target: a static site on Vercel's global CDN.");
+        await api.sleep(700);
+        api.print("yeah, that's not gonna work.");
       },
     }),
   },
@@ -700,6 +872,148 @@ export const COMMANDS: Record<string, CommandSpec> = {
     summary: "heads or tails",
     hidden: true,
     run: () => ({ lines: [Math.random() < 0.5 ? "heads." : "tails."] }),
+  },
+  "8ball": {
+    summary: "8ball <question> — ask the magic 8-ball",
+    hidden: true,
+    run: (args) => {
+      if (!args.length) return { lines: ["usage: 8ball &lt;question&gt;"] };
+      return { lines: [escapeHtml(EIGHT_BALL_ANSWERS[Math.floor(Math.random() * EIGHT_BALL_ANSWERS.length)])] };
+    },
+  },
+  guess: {
+    summary: "guess [number] — guess my number",
+    hidden: true,
+    run: (args) => {
+      if (secretNumber === null) {
+        secretNumber = 1 + Math.floor(Math.random() * 100);
+        guessAttempts = 0;
+      }
+      if (!args[0]) {
+        return {
+          lines: [
+            `I'm thinking of a number between 1 and 100. (attempt ${guessAttempts + 1})`,
+            "Guess with: guess &lt;number&gt;",
+          ],
+        };
+      }
+      const n = Number(args[0]);
+      if (!Number.isInteger(n)) return { lines: ["usage: guess &lt;number&gt;"] };
+      guessAttempts++;
+      if (n === secretNumber) {
+        const attempts = guessAttempts;
+        secretNumber = null;
+        guessAttempts = 0;
+        return { lines: [`correct! it was ${n}. you got it in ${attempts} guess${attempts === 1 ? "" : "es"}.`] };
+      }
+      return { lines: [n < secretNumber ? "higher!" : "lower!"] };
+    },
+  },
+  rps: {
+    summary: "rps <rock|paper|scissors>",
+    hidden: true,
+    run: (args) => {
+      const options = ["rock", "paper", "scissors"];
+      const choice = args[0]?.toLowerCase();
+      if (!choice || !options.includes(choice)) return { lines: ["usage: rps &lt;rock|paper|scissors&gt;"] };
+      const computer = options[Math.floor(Math.random() * options.length)];
+      let result: string;
+      if (choice === computer) {
+        result = "tie!";
+      } else if (
+        (choice === "rock" && computer === "scissors") ||
+        (choice === "paper" && computer === "rock") ||
+        (choice === "scissors" && computer === "paper")
+      ) {
+        result = "you win!";
+      } else {
+        result = "you lose!";
+      }
+      return { lines: [`you: ${choice}  |  me: ${computer}`, result] };
+    },
+  },
+  timer: {
+    summary: "timer <seconds> — countdown",
+    hidden: true,
+    run: (args) => {
+      const secs = Math.min(60, Math.max(1, parseInt(args[0], 10) || 10));
+      return {
+        effect: async (api) => {
+          const el = api.printArt(String(secs));
+          for (let s = secs - 1; s >= 0; s--) {
+            await api.sleep(1000);
+            el.textContent = String(s);
+          }
+          api.print("time's up!");
+        },
+      };
+    },
+  },
+  reverse: {
+    summary: "reverse <text>",
+    hidden: true,
+    run: (args) => {
+      const text = args.join(" ");
+      if (!text) return { lines: ["usage: reverse &lt;text&gt;"] };
+      return { lines: [escapeHtml(Array.from(text).reverse().join(""))] };
+    },
+  },
+  leet: {
+    summary: "leet <text>",
+    hidden: true,
+    run: (args) => {
+      const text = args.join(" ");
+      if (!text) return { lines: ["usage: leet &lt;text&gt;"] };
+      const out = Array.from(text.toLowerCase())
+        .map((c) => LEET_MAP[c] ?? c)
+        .join("");
+      return { lines: [escapeHtml(out)] };
+    },
+  },
+  cowsay: {
+    summary: "cowsay <text>",
+    hidden: true,
+    run: (args) => {
+      const text = args.join(" ") || "moo";
+      return { lines: [...cowsayBubble(text), ...COW].map((line) => escapeHtml(line)) };
+    },
+  },
+  ascii: {
+    summary: "ascii <text> — big blocky text",
+    hidden: true,
+    run: (args) => {
+      const text = args.join(" ");
+      if (!text) return { lines: ["usage: ascii &lt;text&gt; (letters, numbers, spaces only)"] };
+      return { lines: [`<pre class="art">${escapeHtml(renderAsciiText(text))}</pre>`] };
+    },
+  },
+  hacktext: {
+    summary: "hacktext <text> — decode animation",
+    hidden: true,
+    run: (args) => {
+      const text = args.join(" ");
+      if (!text) return { lines: ["usage: hacktext &lt;text&gt;"] };
+      return {
+        effect: async (api) => {
+          const chars = Array.from(text);
+          const revealed = new Array(chars.length).fill(false);
+          const el = api.printArt(chars.map(() => randomScrambleChar()).join(""));
+          const order = chars.map((_, i) => i);
+          for (let i = order.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [order[i], order[j]] = [order[j], order[i]];
+          }
+          for (const idx of order) {
+            for (let frame = 0; frame < 3; frame++) {
+              el.textContent = chars.map((c, i) => (revealed[i] ? c : randomScrambleChar())).join("");
+              await api.sleep(25);
+            }
+            revealed[idx] = true;
+          }
+          el.textContent = text;
+        },
+      };
+    },
   },
   decaf: {
     summary: "switch to decaf",

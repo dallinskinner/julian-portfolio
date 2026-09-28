@@ -32,13 +32,16 @@ nothing else needs to change. A few of these are placeholder text marked
 `quote`, `banner`, `theme <green|amber|blue>`,
 `matrix` (try `matrix <text>` to rain your own text), `hack`.
 
-There are also ~20 hidden easter-egg commands not listed in `help` — try
+There are also ~40 hidden easter-egg commands not listed in `help` — try
 `help-hidden` in the terminal to see them all, or `achievements` to track
 how many you've found. A few highlights: `slowcomputer` (full Windows 98
-theme + boot sound), `bsod`, `oops` (plays a short video clip), `dialup`,
-`sl`/`otter`/`beaver`/`capybara`/`snake`/`shark`/`owl` (ASCII animals scroll
-by — try `otter matrix` too), and `decaf` (run it again at normal speed to
-slow everything down instead).
+theme + boot sound), `bsod`, `crash`, `oops` (plays a short video clip),
+`dialup`, `ping`, a pile of ASCII animals that scroll by (`sl`, `otter`,
+`beaver`, `capybara`, `snake`, `shark`, `owl`, `fox`, `penguin`, `turtle`,
+`spider` — try `otter matrix` and `sl -a`/`shark -a` too), real mini-games
+(`guess`, `rps`, `8ball`, `timer`), text toys (`cowsay`, `ascii`, `leet`,
+`reverse`, `hacktext`), and `decaf` (run it again at normal speed to slow
+everything down instead).
 
 `visitors` and the automatic visit count on page load use the free,
 anonymous [abacus](https://github.com/JasonCameron/abacus) hit-counter API
