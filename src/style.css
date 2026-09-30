@@ -109,6 +109,22 @@ body.theme-blue #terminal {
   color: var(--fg-bright);
 }
 
+.screenshot {
+  display: block;
+  max-width: 100%;
+  border: 1px solid var(--fg-dim);
+  margin-top: 6px;
+}
+
+.teaser {
+  display: block;
+  max-width: 220px;
+  width: 100%;
+  border: 1px solid var(--fg-dim);
+  margin-top: 6px;
+  filter: blur(9px) brightness(0.9);
+}
+
 a {
   color: var(--fg-bright);
   text-decoration: underline;

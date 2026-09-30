@@ -19,21 +19,27 @@ npm run preview # preview the production build locally
 
 ## Edit content
 
-All editable content (name, about text, projects, contact links, the `now`/
-`quote`/`uses` command text) lives in `src/content.ts` — edit that file and
-nothing else needs to change. A few of these are placeholder text marked
-`// TODO`, ready for you to personalize.
+All editable content (name, about text, projects, contact links, blog posts,
+the roadmap, the `now`/`quote`/`uses` command text) lives in `src/content.ts`
+— edit that file and nothing else needs to change. A few of these are
+placeholder text marked `// TODO`, ready for you to personalize.
+
+Projects can also carry a longer `details` write-up and an optional
+`screenshot` (a path under `public/`), shown by `cat <project>.txt`.
 
 ## Commands available in the terminal
 
-`help`, `man <command>`, `about` (`whoami`), `now`, `projects`, `contact`,
-`uses`, `visitors`, `ls`, `cat <file>`, `clear`, `history`, `date`,
+`help`, `man <command>`, `about` (`whoami`), `now`, `projects`, `blog [slug]`,
+`contact`, `uses`, `visitors`, `ls`, `cat <file>`, `clear`, `history`, `date`,
 `countdown <date>`, `age <year>`, `echo <text>`, `calc <expression>`,
 `binary <n>`, `hex <n>`, `password [length]`, `lorem [words]`, `neofetch`,
 `stats`, `worldclock`, `coffee`, `meow`, `joke`, `compliment`, `motivate`,
 `riddle`, `lucky`, `trivia`, `catfact`, `rate <thing>`, `quote`, `banner`,
 `theme <green|amber|blue>`, `matrix` (try `matrix <text>` to rain your own
-text), `hack`, `achievements`.
+text), `hack`, `achievements`, `roadmap` (what's shipped and what's next —
+includes a deliberately blurred teaser image for what's coming; swap
+`public/teaser-coming-soon.png` for a new one whenever you want to tease
+something else).
 
 There are also ~40 hidden easter-egg commands not listed in `help` — try
 `help-hidden` in the terminal to see them all, or `achievements` to track

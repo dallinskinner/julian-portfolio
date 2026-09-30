@@ -1,4 +1,15 @@
-import { ABOUT_LINES, CONTACT_LINKS, NAME, NOW_LINES, PROJECTS, QUOTE, USES_LINES, slugify } from "./content";
+import {
+  ABOUT_LINES,
+  BLOG_POSTS,
+  CONTACT_LINKS,
+  NAME,
+  NOW_LINES,
+  PROJECTS,
+  QUOTE,
+  ROADMAP,
+  USES_LINES,
+  slugify,
+} from "./content";
 import { escapeHtml, evaluateExpression } from "./utils";
 import { toggleMatrix } from "./matrix";
 import { runExplosion } from "./explosion";
@@ -70,6 +81,10 @@ function renderProjectDetail(slug: string): CommandOutput | null {
     ...(p.link
       ? [`<span class="dim">link:</span> <a href="${escapeHtml(p.link)}" target="_blank" rel="noopener noreferrer">${escapeHtml(p.link)}</a>`]
       : []),
+    ...(p.screenshot
+      ? [`<img class="screenshot" src="${escapeHtml(p.screenshot)}" alt="${escapeHtml(p.name)} screenshot" />`]
+      : []),
+    ...(p.details?.length ? ["&nbsp;", ...p.details.map((d) => escapeHtml(d))] : []),
   ];
 }
 
@@ -433,6 +448,52 @@ export const COMMANDS: Record<string, CommandSpec> = {
     summary: "list my projects",
     manual: ["Lists my projects with a short description, tech used, and a link.", "Try 'cat <name>.txt' for one project's detail, or 'ls projects' to list just the names."],
     run: () => ({ lines: renderProjects() }),
+  },
+  blog: {
+    summary: "blog [slug] — read the devlog",
+    manual: ["Lists blog posts, or reads one directly.", "Example: blog hello-world"],
+    run: (args) => {
+      const slug = args[0];
+      if (!slug) {
+        return {
+          lines: [
+            "Blog posts:",
+            "&nbsp;",
+            ...BLOG_POSTS.map(
+              (p) =>
+                `  <span class="highlight">${escapeHtml(p.slug)}</span> — ${escapeHtml(p.title)} <span class="dim">(${escapeHtml(p.date)})</span>`
+            ),
+            "&nbsp;",
+            "Read one with: blog &lt;slug&gt;",
+          ],
+        };
+      }
+      const post = BLOG_POSTS.find((p) => p.slug === slug);
+      if (!post) return { lines: [`blog: no post named '${escapeHtml(slug)}'`] };
+      return {
+        lines: [
+          `<span class="highlight">${escapeHtml(post.title)}</span> <span class="dim">(${escapeHtml(post.date)})</span>`,
+          "&nbsp;",
+          ...post.body.map((paragraph) => escapeHtml(paragraph)),
+        ],
+      };
+    },
+  },
+  roadmap: {
+    summary: "what's shipped recently and what's next",
+    manual: ["A running changelog of recent additions, plus a peek at what's coming."],
+    run: () => ({
+      lines: [
+        "Recently shipped:",
+        ...ROADMAP.shipped.map((s) => `  [x] ${escapeHtml(s)}`),
+        "&nbsp;",
+        "Coming soon:",
+        ...ROADMAP.planned.map((s) => `  [ ] ${escapeHtml(s)}`),
+        "&nbsp;",
+        '<img class="teaser" src="/teaser-coming-soon.png" alt="a blurry glimpse of something coming soon" />',
+        '<span class="dim">(still too blurry to make out — check back later.)</span>',
+      ],
+    }),
   },
   contact: {
     summary: "how to reach me",
