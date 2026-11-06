@@ -112,6 +112,7 @@ export const BLOG_POSTS: BlogPost[] = [
 export const ROADMAP: { shipped: string[]; planned: string[] } = {
   // TODO: keep this updated as you ship things.
   shipped: [
+    "'create': collaborative canvas with invite links, live cursors, PDF import/export",
     "Blog / devlog (this page)",
     "Richer project write-ups — see 'cat music.txt' or 'cat make-anything.txt'",
     "40+ hidden easter-egg commands — see 'achievements'",

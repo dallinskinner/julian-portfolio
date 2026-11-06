@@ -20,6 +20,7 @@ import { runOops } from "./oops";
 import { banner } from "./banner";
 import { availableThemes, isThemeName, setTheme } from "./theme";
 import { renderAsciiText } from "./asciiFont";
+import { openCanvas } from "./canvas";
 
 export type CommandOutput = string[];
 
@@ -478,6 +479,21 @@ export const COMMANDS: Record<string, CommandSpec> = {
         ],
       };
     },
+  },
+  create: {
+    summary: "create <name> — a shared canvas anyone can join by invite link",
+    manual: [
+      "Opens a Figma/Canva-style board: shapes, text, pen, sticky notes, multiple pages.",
+      "Click 'invite' to copy a link; anyone who opens it joins live and you see each other's cursors.",
+      "Import a PDF (each page becomes a board page) and export as PNG, PDF slides or a PDF document.",
+      "The project lives in the host's tab (peer-to-peer) — it ends when the host exits. Esc to exit.",
+    ],
+    run: (args) => ({
+      effect: async (api) => {
+        api.print('<span class="dim">opening canvas… press Esc to return.</span>');
+        await openCanvas({ name: args.join(" ").trim() || undefined });
+      },
+    }),
   },
   roadmap: {
     summary: "what's shipped recently and what's next",

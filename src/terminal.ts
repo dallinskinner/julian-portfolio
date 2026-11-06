@@ -4,6 +4,7 @@ import { fastSleep } from "./speed";
 import { recordVisit } from "./visitors";
 import { banner } from "./banner";
 import { applyPersistedTheme } from "./theme";
+import { openCanvas } from "./canvas";
 
 const PROMPT = "visitor@julian-skinner:~$";
 const BOOT_LINES = [
@@ -110,6 +111,18 @@ export class Terminal {
     this.inputLine.hidden = false;
     this.input.focus();
     this.scrollToBottom();
+
+    const join = location.hash.match(/^#\/join\/([\w-]+)$/);
+    if (join) {
+      this.appendLine("joining shared canvas…", "dim");
+      this.input.disabled = true;
+      try {
+        await openCanvas({ joinId: join[1] });
+      } finally {
+        this.input.disabled = false;
+        this.input.focus();
+      }
+    }
   }
 
   private onKeyDown(e: KeyboardEvent): void {

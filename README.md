@@ -36,7 +36,7 @@ Projects can also carry a longer `details` write-up and an optional
 `stats`, `worldclock`, `coffee`, `meow`, `joke`, `compliment`, `motivate`,
 `riddle`, `lucky`, `trivia`, `catfact`, `rate <thing>`, `quote`, `banner`,
 `theme <green|amber|blue>`, `matrix` (try `matrix <text>` to rain your own
-text), `hack`, `achievements`, `roadmap` (what's shipped and what's next —
+text), `hack`, `achievements`, `create` (shared canvas with invite links + PDF import/export), `roadmap` (what's shipped and what's next —
 includes a deliberately blurred teaser image for what's coming; swap
 `public/teaser-coming-soon.png` for a new one whenever you want to tease
 something else).
