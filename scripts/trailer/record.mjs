@@ -155,7 +155,9 @@ await sleep(1500);
 await card(host, "100+ commands.", { sub: "some of them secret", hold: 1200 });
 
 // ---------- finale ----------
-await card(host, "Julian Skinner", { sub: URL_TEXT, hold: 3000, solid: true });
+await card(host, "Julian Skinner", { sub: URL_TEXT, hold: 2800, solid: true });
+// closing joke, like a tiny disclaimer under the credits
+await card(host, "<span style=\"font-size:30px;letter-spacing:.12em;font-family:'Courier New',monospace;text-transform:none\">* almost all of this video's budget<br>was spent on the confetti</span>", { hold: 2600, solid: true });
 await host.evaluate(() => (document.body.style.background = "#000"));
 
 const durationMs = Date.now() - t0;
