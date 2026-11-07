@@ -21,6 +21,7 @@ import { banner } from "./banner";
 import { availableThemes, isThemeName, setTheme } from "./theme";
 import { renderAsciiText } from "./asciiFont";
 import { openCanvas } from "./canvas";
+import { handleAdventureInput, isAdventureActive, startAdventure } from "./adventure";
 
 export type CommandOutput = string[];
 
@@ -510,6 +511,14 @@ export const COMMANDS: Record<string, CommandSpec> = {
         '<span class="dim">(still too blurry to make out — check back later.)</span>',
       ],
     }),
+  },
+  adventure: {
+    summary: "a tiny text adventure about me",
+    manual: [
+      "A small work-in-progress text adventure. Once it starts, normal commands pause —",
+      "use: look, go &lt;place&gt;, take, inventory, quit.",
+    ],
+    run: () => ({ lines: startAdventure() }),
   },
   contact: {
     summary: "how to reach me",
@@ -1395,6 +1404,9 @@ export const COMMANDS: Record<string, CommandSpec> = {
 export function runCommand(input: string, history: string[]): CommandResult {
   const trimmed = input.trim();
   if (!trimmed) return {};
+  if (isAdventureActive()) {
+    return { lines: handleAdventureInput(trimmed) };
+  }
   const [rawCmd, ...args] = trimmed.split(/\s+/);
   const cmd = rawCmd.toLowerCase();
   const spec = COMMANDS[cmd];

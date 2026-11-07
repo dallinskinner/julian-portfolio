@@ -124,6 +124,64 @@ export const ROADMAP: { shipped: string[]; planned: string[] } = {
   ],
 };
 
+export interface AdventureRoom {
+  id: string;
+  description: string[];
+  exits: Record<string, string>;
+  item?: string;
+}
+
+// TODO: this is a first concept — personalize the rooms/items/ending with
+// your own real details whenever you're happy with the shape of it.
+export const ADVENTURE_ROOMS: Record<string, AdventureRoom> = {
+  start: {
+    id: "start",
+    description: [
+      "You wake up inside a glowing green terminal. Cursor blinking, somewhere in the dark.",
+      "Two doors: one hums with music, the other flickers like a monitor.",
+      "Exits: studio, cave",
+    ],
+    exits: { studio: "studio", cave: "cave" },
+  },
+  studio: {
+    id: "studio",
+    description: [
+      "A small home studio. Headphones on a hook, a half-finished track looping quietly.",
+      "This is where the 'Music' project lives — real tracks, on BandLab.",
+      "Exits: start, kitchen",
+    ],
+    exits: { start: "start", kitchen: "kitchen" },
+    item: "a vinyl record",
+  },
+  cave: {
+    id: "cave",
+    description: [
+      "A cluttered dev cave. Three monitors, one of them definitely just for Stack Overflow.",
+      "This is where 'Make Anything' got built.",
+      "Exits: start, kitchen",
+    ],
+    exits: { start: "start", kitchen: "kitchen" },
+    item: "a floppy disk labeled MAKE ANYTHING",
+  },
+  kitchen: {
+    id: "kitchen",
+    description: [
+      "The kitchen. There is, as always, pizza.",
+      "A sticky note on the fridge just says: \"pizza\" — julian skinner",
+      "Exits: exit",
+    ],
+    exits: { exit: "exit" },
+  },
+  exit: {
+    id: "exit",
+    description: [
+      "You step back out into the terminal proper.",
+      "Thanks for playing — this was just a concept. Try 'projects' or 'contact' for the real thing.",
+    ],
+    exits: {},
+  },
+};
+
 export function slugify(name: string): string {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 }
