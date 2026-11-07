@@ -8,6 +8,7 @@ import {
   QUOTE,
   ROADMAP,
   USES_LINES,
+  HAIKUS,
   slugify,
 } from "./content";
 import { escapeHtml, evaluateExpression } from "./utils";
@@ -18,7 +19,9 @@ import { getVisitCount, resetLocalVisitFlag } from "./visitors";
 import { runBsod } from "./bsod";
 import { runOops } from "./oops";
 import { banner } from "./banner";
-import { availableThemes, isThemeName, setTheme } from "./theme";
+import { availableThemes, getTheme, isThemeName, setTheme } from "./theme";
+import { runConfetti } from "./confetti";
+import { base64Decode, base64Encode, moonPhase, morse, parseColor, rgbToHex, rgbToHsl, rollDice, rot13, stopwatch } from "./tools";
 import { renderAsciiText } from "./asciiFont";
 import { openCanvas } from "./canvas";
 import { openOs } from "./os";
@@ -445,7 +448,7 @@ export const COMMANDS: Record<string, CommandSpec> = {
   whoami: {
     summary: "alias for 'about'",
     hidden: true,
-    run: () => ({ lines: renderAbout() }),
+    run: (args) => (args[0] === "root" ? { lines: ["uid=0(root) ... just kidding. you're a visitor.", '<span class="dim">(nice try, though.)</span>'] } : { lines: renderAbout() }),
   },
   projects: {
     summary: "list my projects",
@@ -511,6 +514,215 @@ export const COMMANDS: Record<string, CommandSpec> = {
         '<img class="teaser" src="/teaser-coming-soon.png" alt="a blurry glimpse of something coming soon" />',
         '<span class="dim">(still too blurry to make out — check back later.)</span>',
       ],
+    }),
+  },
+  dice: {
+    summary: "dice [NdM] — roll dice, e.g. dice 2d6",
+    manual: ["Rolls dice. 'dice' is one d6; 'dice 3d8' rolls three eight-sided dice (max 20 dice, 1000 sides)."],
+    run: (args) => {
+      const r = rollDice(args[0] ?? "");
+      if (!r) return { lines: ["usage: dice [NdM] — for example: dice 2d6"] };
+      return { lines: [`rolling ${r.notation}: ${r.rolls.join(" + ")}${r.rolls.length > 1 ? ` = <span class="highlight">${r.total}</span>` : ""}`] };
+    },
+  },
+  morse: {
+    summary: "morse <text> — translate to or from morse code",
+    manual: ["Turns text into morse code, or morse (dots, dashes, / between words) back into text."],
+    run: (args) => {
+      if (!args.length) return { lines: ["usage: morse &lt;text or .- code&gt;"] };
+      return { lines: [escapeHtml(morse(args.join(" ")))] };
+    },
+  },
+  rot13: {
+    summary: "rot13 <text> — the classic caesar cipher",
+    manual: ["Shifts letters by 13. Run it twice to get your text back."],
+    run: (args) => (args.length ? { lines: [escapeHtml(rot13(args.join(" ")))] } : { lines: ["usage: rot13 &lt;text&gt;"] }),
+  },
+  base64: {
+    summary: "base64 [-d] <text> — encode or decode base64",
+    manual: ["'base64 hello' encodes; 'base64 -d aGVsbG8=' decodes."],
+    run: (args) => {
+      const decode = args[0] === "-d";
+      const text = (decode ? args.slice(1) : args).join(" ");
+      if (!text) return { lines: ["usage: base64 [-d] &lt;text&gt;"] };
+      if (!decode) return { lines: [escapeHtml(base64Encode(text))] };
+      const out = base64Decode(text);
+      return { lines: [out === null ? "that doesn't look like valid base64." : escapeHtml(out)] };
+    },
+  },
+  uuid: {
+    summary: "generate a random uuid",
+    run: () => ({ lines: [crypto.randomUUID()] }),
+  },
+  color: {
+    summary: "color <hex|name> — preview a color and see its values",
+    manual: ["Shows a swatch plus hex, rgb and hsl. Try 'color #ff8800' or 'color tomato'."],
+    run: (args) => {
+      const rgb = args[0] ? parseColor(args[0]) : null;
+      if (!rgb) return { lines: ["usage: color &lt;hex or css color name&gt; — e.g. color #ff8800, color tomato"] };
+      const hex = rgbToHex(rgb);
+      return {
+        lines: [
+          `<span style="display:inline-block;width:6em;height:1.4em;background:${hex};border:1px solid currentColor;vertical-align:middle"></span> ${hex}`,
+          `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`,
+          rgbToHsl(rgb),
+        ],
+      };
+    },
+  },
+  moon: {
+    summary: "tonight's moon phase",
+    run: () => {
+      const m = moonPhase();
+      return { lines: [`${m.emoji}  <span class="highlight">${m.name}</span>`, `about ${m.illumination}% illuminated, ${m.ageDays.toFixed(1)} days into the cycle`] };
+    },
+  },
+  uptime: {
+    summary: "how long you've been here",
+    run: () => ({
+      effect: async (api) => {
+        const secs = Math.floor(performance.now() / 1000);
+        const mins = Math.floor(secs / 60);
+        api.print(`you've been here for ${mins}m ${secs % 60}s this visit.`);
+        const visits = await getVisitCount();
+        if (visits !== null) api.print(`<span class="dim">total visits to this site: ${visits}</span>`);
+      },
+    }),
+  },
+  stopwatch: {
+    summary: "stopwatch start|lap|stop|reset",
+    run: (args) => ({ lines: stopwatch((args[0] ?? "").toLowerCase()) }),
+  },
+  haiku: {
+    summary: "a tiny programming haiku",
+    run: () => {
+      const h = HAIKUS[Math.floor(Math.random() * HAIKUS.length)];
+      return { lines: h.map((l) => `  ${escapeHtml(l)}`) };
+    },
+  },
+  xyzzy: {
+    summary: "nothing happens",
+    hidden: true,
+    run: () => ({ lines: ["nothing happens.", '<span class="dim">(but somewhere, a cave is waiting — try \'adventure\'.)</span>'] }),
+  },
+  konami: {
+    summary: "up up down down left right left right b a",
+    hidden: true,
+    run: () => ({
+      effect: async (api) => {
+        api.print("&#8593; &#8593; &#8595; &#8595; &#8592; &#8594; &#8592; &#8594; B A");
+        api.print('<span class="highlight">+30 lives. cheat code accepted.</span>');
+        await runConfetti(2500);
+      },
+    }),
+  },
+  party: {
+    summary: "confetti!",
+    hidden: true,
+    run: () => ({
+      effect: async (api) => {
+        api.print("&#127881; party time!");
+        await runConfetti(3500);
+      },
+    }),
+  },
+  disco: {
+    summary: "cycle the theme, disco style",
+    hidden: true,
+    run: () => ({
+      effect: async (api) => {
+        const original = getTheme();
+        const themes = availableThemes();
+        api.print("&#128378; disco fever...");
+        for (let i = 0; i < 18; i++) {
+          setTheme(themes[i % themes.length]);
+          await api.sleep(160);
+        }
+        setTheme(original);
+      },
+    }),
+  },
+  vim: {
+    summary: "good luck leaving",
+    hidden: true,
+    run: () => ({
+      lines: [
+        ...Array.from({ length: 6 }, () => "~"),
+        '<span class="highlight">-- INSERT --</span>',
+        "&nbsp;",
+        "you can't exit vim. (just kidding — you already did. you're still in the terminal.)",
+      ],
+    }),
+  },
+  emacs: {
+    summary: "an operating system lacking a good editor",
+    hidden: true,
+    run: () => ({ lines: ["loading emacs... 8 GB of RAM requested.", "just kidding. try 'vim' for a worse time."] }),
+  },
+  rm: {
+    summary: "definitely don't",
+    hidden: true,
+    run: (args) => {
+      if (!args.join(" ").includes("-rf") || !args.includes("/")) {
+        return { lines: [`rm: cannot remove '${escapeHtml(args[0] ?? "")}': permission denied`] };
+      }
+      return {
+        effect: async (api) => {
+          for (const dir of ["/usr", "/etc", "/home", "/var", "/boot"]) {
+            api.print(`removing ${dir} ...`);
+            await api.sleep(350);
+          }
+          api.print('<span class="highlight">...wait. that was a bad idea. aborting.</span>');
+          await api.sleep(500);
+          api.print("everything is fine. this is a website. nothing was harmed.");
+        },
+      };
+    },
+  },
+  nyan: {
+    summary: "a rainbow cat zooms past",
+    hidden: true,
+    run: () => ({
+      effect: (api) =>
+        runScroller(api, [
+          "~~~~~~~~~~,------,",
+          "~~~~~~~~~~|   /\\_/\\",
+          "~~~~~~~~~~|__( ^ .^)",
+          '~~~~~~~~~~  ""  ""',
+        ]),
+    }),
+  },
+  "42": {
+    summary: "the answer",
+    hidden: true,
+    run: () => ({ lines: ["the answer to life, the universe, and everything.", '<span class="dim">(the question is still being computed.)</span>'] }),
+  },
+  ghost: {
+    summary: "boo",
+    hidden: true,
+    run: () => ({
+      effect: async (api) => {
+        const el = api.printArt("  .-.\n (o o)\n | O \\\n  \\   \\\n   `~~~'\n     boo.");
+        el.style.transition = "opacity 1.6s";
+        await api.sleep(900);
+        el.style.opacity = "0";
+        await api.sleep(1700);
+        el.remove();
+      },
+    }),
+  },
+  hackerman: {
+    summary: "i'm in",
+    hidden: true,
+    run: () => ({
+      effect: async (api) => {
+        const steps = ["scanning ports ...", "bypassing firewall ...", "decrypting mainframe ...", "downloading the internet ...", "covering tracks ..."];
+        for (const s of steps) {
+          api.print(`<span class="dim">${s}</span>`);
+          await api.sleep(450);
+        }
+        api.print('<span class="highlight">ACCESS GRANTED. i\'m in.</span>');
+      },
     }),
   },
   os: {
@@ -1407,7 +1619,11 @@ export const COMMANDS: Record<string, CommandSpec> = {
   sudo: {
     summary: "try it and see",
     hidden: true,
-    run: () => ({ lines: ["nice try. you don't have root on this machine."] }),
+    run: (args) => {
+      const joined = args.join(" ").toLowerCase();
+      if (joined.includes("sandwich")) return { lines: ["okay."] };
+      return { lines: ["nice try. you don't have root on this machine."] };
+    },
   },
   exit: {
     summary: "close the terminal",

@@ -112,6 +112,7 @@ export const BLOG_POSTS: BlogPost[] = [
 export const ROADMAP: { shipped: string[]; planned: string[] } = {
   // TODO: keep this updated as you ship things.
   shipped: [
+    "10 more everyday commands: dice, morse, rot13, base64, uuid, color, moon, uptime, stopwatch, haiku",
     "'create': collaborative canvas with invite links, live cursors, PDF import/export",
     "Blog / devlog (this page)",
     "Richer project write-ups — see 'cat music.txt' or 'cat make-anything.txt'",
@@ -196,6 +197,16 @@ export const PLAYLIST: Track[] = [
   { id: "boot", title: "Startup Chime", artist: "Hackfolio OS", src: "/win98-boot.mp3" },
   { id: "distant-dreams", title: "Distant Dreams", artist: "party", src: "/music/distant-dreams.m4a" },
   { id: "click-tap-tap", title: "Click Tap Tap", artist: "party", src: "/music/click-tap-tap.m4a" },
+];
+
+export const HAIKUS: string[][] = [
+  ["a semicolon missed", "the compiler weeps in red", "coffee fixes all"],
+  ["it works on my machine", "ship the machine to the user", "problem solved, right?"],
+  ["merge conflict again", "two branches, one stubborn line", "i choose both. why not."],
+  ["tests pass, all is green", "i change one tiny comment", "now everything breaks"],
+  ["off by one again", "the loop runs just once too much", "arrays, my old foe"],
+  ["deploy on friday", "the bravest words ever said", "see you on monday"],
+  ["cache invalidation", "naming things, and off-by-one", "the three hard problems"],
 ];
 
 export function slugify(name: string): string {
