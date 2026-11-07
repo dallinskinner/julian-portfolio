@@ -112,6 +112,7 @@ export const BLOG_POSTS: BlogPost[] = [
 export const ROADMAP: { shipped: string[]; planned: string[] } = {
   // TODO: keep this updated as you ship things.
   shipped: [
+    "'os': a Windows 11-style desktop with a Radio app that plays the playlist",
     "'create': collaborative canvas with invite links, live cursors, PDF import/export",
     "Blog / devlog (this page)",
     "Richer project write-ups — see 'cat music.txt' or 'cat make-anything.txt'",
@@ -181,6 +182,22 @@ export const ADVENTURE_ROOMS: Record<string, AdventureRoom> = {
     exits: {},
   },
 };
+
+export interface Track {
+  id: string;
+  title: string;
+  artist: string;
+  src: string;
+}
+
+// Radio stations — one per track. Drop more mp3 files into public/music/ and
+// add an entry here (the first two reuse sounds already in public/).
+export const PLAYLIST: Track[] = [
+  { id: "dialup", title: "Dial-up Modem", artist: "The 90s", src: "/dialup.mp3" },
+  { id: "boot", title: "Startup Chime", artist: "Hackfolio OS", src: "/win98-boot.mp3" },
+  { id: "track-1", title: "Track One", artist: "Julian Skinner", src: "/music/track-1.mp3" },
+  { id: "track-2", title: "Track Two", artist: "Julian Skinner", src: "/music/track-2.mp3" },
+];
 
 export function slugify(name: string): string {
   return name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");

@@ -21,6 +21,7 @@ import { banner } from "./banner";
 import { availableThemes, isThemeName, setTheme } from "./theme";
 import { renderAsciiText } from "./asciiFont";
 import { openCanvas } from "./canvas";
+import { openOs } from "./os";
 import { handleAdventureInput, isAdventureActive, startAdventure } from "./adventure";
 
 export type CommandOutput = string[];
@@ -510,6 +511,19 @@ export const COMMANDS: Record<string, CommandSpec> = {
         '<img class="teaser" src="/teaser-coming-soon.png" alt="a blurry glimpse of something coming soon" />',
         '<span class="dim">(still too blurry to make out — check back later.)</span>',
       ],
+    }),
+  },
+  os: {
+    summary: "switch to a modern desktop (with a Radio app)",
+    manual: [
+      "Opens a Windows 11-style desktop with a taskbar, Start menu and draggable windows.",
+      "The Radio app plays the playlist — each station is a song. Esc or Start > Shut down to return.",
+    ],
+    run: () => ({
+      effect: async (api) => {
+        api.print('<span class="dim">booting desktop… press Esc to return to the terminal.</span>');
+        await openOs();
+      },
     }),
   },
   adventure: {
