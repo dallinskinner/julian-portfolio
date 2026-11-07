@@ -189,13 +189,13 @@ export interface Track {
   src: string;
 }
 
-// Radio stations — one per track. Drop more mp3 files into public/music/ and
+// Radio stations — one per track. Drop more audio files into public/music/ and
 // add an entry here (the first two reuse sounds already in public/).
 export const PLAYLIST: Track[] = [
   { id: "dialup", title: "Dial-up Modem", artist: "The 90s", src: "/dialup.mp3" },
   { id: "boot", title: "Startup Chime", artist: "Hackfolio OS", src: "/win98-boot.mp3" },
-  { id: "track-1", title: "Track One", artist: "Julian Skinner", src: "/music/track-1.mp3" },
-  { id: "track-2", title: "Track Two", artist: "Julian Skinner", src: "/music/track-2.mp3" },
+  { id: "distant-dreams", title: "Distant Dreams", artist: "party", src: "/music/distant-dreams.m4a" },
+  { id: "click-tap-tap", title: "Click Tap Tap", artist: "party", src: "/music/click-tap-tap.m4a" },
 ];
 
 export function slugify(name: string): string {
