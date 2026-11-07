@@ -112,7 +112,6 @@ export const BLOG_POSTS: BlogPost[] = [
 export const ROADMAP: { shipped: string[]; planned: string[] } = {
   // TODO: keep this updated as you ship things.
   shipped: [
-    "'os': a Windows 11-style desktop with a Radio app that plays the playlist",
     "'create': collaborative canvas with invite links, live cursors, PDF import/export",
     "Blog / devlog (this page)",
     "Richer project write-ups — see 'cat music.txt' or 'cat make-anything.txt'",
