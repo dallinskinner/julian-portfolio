@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# trailer output + tooling deps
+/trailer/
+scripts/trailer/node_modules

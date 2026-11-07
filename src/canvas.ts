@@ -79,6 +79,7 @@ export async function openCanvas(opts: CanvasOptions): Promise<void> {
 
     const setStatus = (t: string) => (status.textContent = t);
     const page = () => doc.pages[Math.min(pageIdx, doc.pages.length - 1)];
+    cursors.setPage(page().id);
 
     const fit = () => {
       const s = Math.min(stage.clientWidth / BOARD_W, stage.clientHeight / BOARD_H);
